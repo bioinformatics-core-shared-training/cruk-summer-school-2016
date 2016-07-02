@@ -72,5 +72,5 @@ RUN chmod +x getCourseData.sh
 RUN ./getCourseData.sh
 RUN R -f installBioCPkgs.R
 WORKDIR ref_data
-RUN bwa index -a bwtsw human_g1k_v37.fasta
+RUN bwa index -p hg19 -a bwtsw human_g1k_v37.fasta
 WORKDIR /home/Course_Materials

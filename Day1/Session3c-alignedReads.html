@@ -328,56 +328,6 @@ ir</code></pre>
 ##   E        22        24         3
 ##   F        23        25         3
 ##   G        24        26         3</code></pre>
-<hr />
-</div>
-<div id="exercise-1" class="section level3">
-<h3>Exercise</h3>
-<p>Explain the behaviour of the following:-</p>
-<pre class="r"><code>resize(ir,3)</code></pre>
-<pre><code>## IRanges object with 7 ranges and 0 metadata columns:
-##         start       end     width
-##     &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
-##   A         7         9         3
-##   B         9        11         3
-##   C        12        14         3
-##   D        14        16         3
-##   E        22        24         3
-##   F        23        25         3
-##   G        24        26         3</code></pre>
-<pre class="r"><code>resize(ir,3,fix = &quot;start&quot;)</code></pre>
-<pre><code>## IRanges object with 7 ranges and 0 metadata columns:
-##         start       end     width
-##     &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
-##   A         7         9         3
-##   B         9        11         3
-##   C        12        14         3
-##   D        14        16         3
-##   E        22        24         3
-##   F        23        25         3
-##   G        24        26         3</code></pre>
-<pre class="r"><code>resize(ir,3,fix = &quot;end&quot;)</code></pre>
-<pre><code>## IRanges object with 7 ranges and 0 metadata columns:
-##         start       end     width
-##     &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
-##   A        13        15         3
-##   B         9        11         3
-##   C        11        13         3
-##   D        16        18         3
-##   E        24        26         3
-##   F        25        27         3
-##   G        26        28         3</code></pre>
-<pre class="r"><code>resize(ir,3,fix = &quot;center&quot;)</code></pre>
-<pre><code>## IRanges object with 7 ranges and 0 metadata columns:
-##         start       end     width
-##     &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
-##   A        10        12         3
-##   B         9        11         3
-##   C        11        13         3
-##   D        15        17         3
-##   E        23        25         3
-##   F        24        26         3
-##   G        25        27         3</code></pre>
-<hr />
 </div>
 <div id="coverage" class="section level3">
 <h3>Coverage</h3>
@@ -631,26 +581,24 @@ gr2</code></pre>
 <pre class="r"><code>mcols(gr) &lt;- data.frame(Count = runif(length(gr)), Gene =sample(LETTERS,length(gr)))
 gr</code></pre>
 <pre><code>## GRanges object with 7 ranges and 2 metadata columns:
-##     seqnames    ranges strand |     Count     Gene
-##        &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;factor&gt;
-##   A        A  [ 7, 15]      * | 0.7094825        A
-##   B        A  [ 9, 11]      * | 0.1871002        I
-##   C        A  [12, 13]      * | 0.9397152        Z
-##   D        B  [14, 18]      * | 0.6877217        S
-##   E        B  [22, 26]      * | 0.2988311        B
-##   F        B  [23, 27]      * | 0.2846881        P
-##   G        B  [24, 28]      * | 0.8684937        N
+##     seqnames    ranges strand |      Count     Gene
+##        &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |  &lt;numeric&gt; &lt;factor&gt;
+##   A        A  [ 7, 15]      * | 0.46129716        Y
+##   B        A  [ 9, 11]      * | 0.44283651        A
+##   C        A  [12, 13]      * | 0.05131723        E
+##   D        B  [14, 18]      * | 0.12462396        H
+##   E        B  [22, 26]      * | 0.94311080        R
+##   F        B  [23, 27]      * | 0.03167328        U
+##   G        B  [24, 28]      * | 0.74428036        C
 ##   -------
 ##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</code></pre>
 <p>The “counts” we have created here can be used in the subset operation</p>
 <pre class="r"><code>gr[mcols(gr)$Count &gt; 0.5]</code></pre>
-<pre><code>## GRanges object with 4 ranges and 2 metadata columns:
+<pre><code>## GRanges object with 2 ranges and 2 metadata columns:
 ##     seqnames    ranges strand |     Count     Gene
 ##        &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;factor&gt;
-##   A        A  [ 7, 15]      * | 0.7094825        A
-##   C        A  [12, 13]      * | 0.9397152        Z
-##   D        B  [14, 18]      * | 0.6877217        S
-##   G        B  [24, 28]      * | 0.8684937        N
+##   E        B  [22, 26]      * | 0.9431108        R
+##   G        B  [24, 28]      * | 0.7442804        C
 ##   -------
 ##   seqinfo: 2 sequences from an unspecified genome; no seqlengths</code></pre>
 </div>
@@ -673,24 +621,13 @@ mygene</code></pre>
 ##   [1]    chr17 [7577851, 7598063]      *
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
-<p>At this point <code>IRanges</code> and <code>GRanges</code> are probably still a bit abstract, so we will demonstrate their utility by looking at a few examples.</p>
 </div>
 <div id="representing-aligned-data" class="section level2">
 <h2>Representing aligned data</h2>
-<p>We can import reads from a <code>.bam</code> file into Bioconductor. However, to set expectations, we should probably say we are not going to be processing the reads from a whole-genome sequencing run in this manner.</p>
+<p>We can import reads from a <code>.bam</code> file into Bioconductor. However, to set expectations, we should probably say we are not going to be processing the reads from a whole-genome sequencing run in this manner. This can be a useful way of diving-into a particular region of interest and exploring the data.</p>
 <p>A package that can be used to parse a bam file is <code>GenomicAlignments</code></p>
-<pre class="r"><code>library(GenomicAlignments)</code></pre>
-<pre><code>## Loading required package: SummarizedExperiment</code></pre>
-<pre><code>## Loading required package: Biobase</code></pre>
-<pre><code>## Welcome to Bioconductor
-## 
-##     Vignettes contain introductory material; view with
-##     'browseVignettes()'. To cite Bioconductor, see
-##     'citation(&quot;Biobase&quot;)', and for packages 'citation(&quot;pkgname&quot;)'.</code></pre>
-<pre><code>## Loading required package: Biostrings</code></pre>
-<pre><code>## Loading required package: XVector</code></pre>
-<pre><code>## Loading required package: Rsamtools</code></pre>
-<pre class="r"><code>mybam &lt;- readGAlignments(&quot;paired.bam&quot;)
+<pre class="r"><code>library(GenomicAlignments)
+mybam &lt;- readGAlignments(&quot;paired.bam&quot;)
 mybam</code></pre>
 <pre><code>## GAlignments object with 12581680 alignments and 0 metadata columns:
 ##              seqnames strand       cigar    qwidth     start       end
@@ -723,7 +660,7 @@ mybam</code></pre>
 ##   seqinfo: 86 sequences from an unspecified genome</code></pre>
 <p>You should see that the object created, <code>mybam</code> is displayed in a similar style to the <code>IRanges</code> and <code>GRanges</code> we have just been dealing with.</p>
 <hr />
-<div id="exercise-2" class="section level3">
+<div id="exercise-1" class="section level3">
 <h3>Exercise</h3>
 <ul>
 <li>How many reads are in this bam file?</li>
@@ -768,7 +705,7 @@ bamcov</code></pre>
 ##   Values :     0     1     0     1     2 ...     2     3     2     1     0</code></pre>
 <hr />
 </div>
-<div id="exercise-3" class="section level3">
+<div id="exercise-2" class="section level3">
 <h3>Exercise</h3>
 <ul>
 <li>What is the mean coverage on chromosome 20?</li>
@@ -832,11 +769,11 @@ mygene</code></pre>
 <pre><code>## 
 ## chr17 
 ##     1</code></pre>
-<p>Before attempting an overlap between two different set of ranges, we need to make sure that there sequences names are compatible. One solution is to be more careful when creating our ranges.</p>
+<p>Before attempting an overlap between two different set of ranges, we need to make sure that their respective sequences names are compatible. One solution is to be more careful when creating our ranges.</p>
 <pre class="r"><code>mygene &lt;- GRanges(&quot;17&quot;, ranges=IRanges(7577851, 7598063))
 countOverlaps(mygene, mybam)</code></pre>
 <pre><code>## [1] 225</code></pre>
-<p>The convenience function <code>seqlevelsStyle</code> has been written to help us understand what covention has been used to name the chromosomes</p>
+<p>The convenience function <code>seqlevelsStyle</code> has been written to help us understand what covention has been used to name the chromosomes, and can even rename where appropriate.</p>
 <pre class="r"><code>mygene &lt;- GRanges(&quot;chr17&quot;, ranges=IRanges(7577851, 7598063))
 seqlevelsStyle(mygene)</code></pre>
 <pre><code>## [1] &quot;UCSC&quot;</code></pre>
@@ -883,49 +820,25 @@ countOverlaps(mygene, mybam)</code></pre>
 <p>For efficiency, the <code>readGAlignments</code> function imports a minimal amount of information from the file. From the specification of the <code>.sam</code>/ <code>.bam</code> file, there are many other useful pieces of information contained in the file. We can read more fields by making use of the <code>ScanBamParam</code> function. For instance, we might want to know the ID, sequence, mapping quality and “flag” for each read. We could do this in the following manner:-</p>
 <pre class="r"><code>bam &lt;- readGAlignments(&quot;paired.bam&quot;,param=ScanBamParam(what=c(&quot;seq&quot;,&quot;mapq&quot;,&quot;flag&quot;)),use.names = TRUE)
 bam</code></pre>
-<pre><code>## GAlignments object with 12581680 alignments and 3 metadata columns:
+<pre><code>## GAlignments object with 3 alignments and 3 metadata columns:
 ##                    seqnames strand       cigar    qwidth     start
 ##                       &lt;Rle&gt;  &lt;Rle&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt;
 ##   SRR081708.237649        1      +       1S67M        68     10003
 ##   SRR081679.742077        1      +         68M        68     10036
 ##   SRR079476.668457        1      +         68M        68     10036
-##   SRR079511.938169        1      +         68M        68     10041
-##   SRR081708.237649        1      -         68M        68     10041
-##                ...      ...    ...         ...       ...       ...
-##   SRR081721.198426   hs37d5      -         68M        68  35465836
-##   SRR079422.510282   hs37d5      +         68M        68  35466096
-##   SRR079422.510282   hs37d5      -    47M1D21M        68  35466133
-##   SRR079560.307153   hs37d5      +         68M        68  35466270
-##   SRR079560.307153   hs37d5      -         68M        68  35466357
 ##                          end     width     njunc |                     seq
 ##                    &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; |          &lt;DNAStringSet&gt;
 ##   SRR081708.237649     10069        67         0 | GACCCTGACC...CTAACCCTAA
 ##   SRR081679.742077     10103        68         0 | CTAAGCCTAA...CCCGAACGCT
 ##   SRR079476.668457     10103        68         0 | CTAACCCTAA...CCCTAACCCT
-##   SRR079511.938169     10108        68         0 | CCTAACCCTA...ACCCTAACCC
-##   SRR081708.237649     10108        68         0 | CCTAACCCTA...ACCCTAACCC
-##                ...       ...       ...       ... .                     ...
-##   SRR081721.198426  35465903        68         0 | ATTCCATTCC...AGTGCAGATT
-##   SRR079422.510282  35466163        68         0 | CACTTCATCA...CCATTCGATT
-##   SRR079422.510282  35466201        69         0 | TTCGAATCTT...TACCATTCGA
-##   SRR079560.307153  35466337        68         0 | ATTCGATTCC...CCATTTGATT
-##   SRR079560.307153  35466424        68         0 | TCCGTTTGAT...ATTCCATTTG
 ##                         mapq      flag
 ##                    &lt;integer&gt; &lt;integer&gt;
 ##   SRR081708.237649         6       163
 ##   SRR081679.742077         5        99
 ##   SRR079476.668457        14        99
-##   SRR079511.938169        15       163
-##   SRR081708.237649        18        83
-##                ...       ...       ...
-##   SRR081721.198426        29       147
-##   SRR079422.510282        24        99
-##   SRR079422.510282        13       147
-##   SRR079560.307153        32       163
-##   SRR079560.307153        31        83
 ##   -------
 ##   seqinfo: 86 sequences from an unspecified genome</code></pre>
-<p>The command takes longer to run, but we get more detail on each of the reads. The extra fields make up the metadata for each reads and can be accessed using the <code>mcols</code> function that we met earlier. If we save this metadata as an object, we can use the usual <code>$</code> operator to access the columns</p>
+<p>The command takes longer to run, but we get more detail on each of the reads. The extra fields make up the metadata for each reads and can be accessed using the <code>mcols</code> function that we met earlier. If we save this metadata as an object, we can treat it as a <code>data frame</code> and therefore have the usual <code>$</code> operator to access the columns</p>
 <pre class="r"><code>meta &lt;- mcols(bam)
 meta</code></pre>
 <pre><code>## DataFrame with 12581680 rows and 3 columns
@@ -957,7 +870,7 @@ meta</code></pre>
 ## [12581679]    68 ATTCGATTCCTTTTGATTCCATATGATT...TTGGATTTGATTCAAAACCATTTGATT
 ## [12581680]    68 TCCGTTTGATTCCATTCCATTCGATTCC...CCACTCCGTTCCATTTCATTCCATTTG</code></pre>
 <hr />
-<div id="exercise-4" class="section level3">
+<div id="exercise-3" class="section level3">
 <h3>Exercise</h3>
 <ul>
 <li>What is the lowest mapping quality observed in the data?</li>
@@ -970,10 +883,11 @@ meta</code></pre>
 <hr />
 <p>The exact definition of mapping quality will vary according to which aligner was used, or maybe even the version of the aligner. If we wish to impose such a threshold to do some filtering, we can do the following:-</p>
 <pre class="r"><code>toremove &lt;- which(meta$mapq &lt; 5)
-length(toremove)</code></pre>
+length(toremove)
+bam.filt &lt;- bam[-toremove]
+bam.filt
+length(bam.filt) / length(bam)</code></pre>
 <pre><code>## [1] 877025</code></pre>
-<pre class="r"><code>bam.filt &lt;- bam[-toremove]
-bam.filt</code></pre>
 <pre><code>## GAlignments object with 11704655 alignments and 3 metadata columns:
 ##                    seqnames strand       cigar    qwidth     start
 ##                       &lt;Rle&gt;  &lt;Rle&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt;
@@ -1016,7 +930,6 @@ bam.filt</code></pre>
 ##   SRR079560.307153        31        83
 ##   -------
 ##   seqinfo: 86 sequences from an unspecified genome</code></pre>
-<pre class="r"><code>length(bam.filt) / length(bam)</code></pre>
 <pre><code>## [1] 0.9302935</code></pre>
 <p>Another field we might want to pay attention to is the <code>flag</code> of each read.</p>
 </div>
@@ -1024,10 +937,10 @@ bam.filt</code></pre>
 <div id="fun-with-flags" class="section level2">
 <h2>Fun with flags!</h2>
 <hr />
-<div id="exercise-5" class="section level3">
+<div id="exercise-4" class="section level3">
 <h3>Exercise</h3>
 <ul>
-<li>What categories of read to we have? HINT:-</li>
+<li>What categories of flag do we have? HINT:-</li>
 <li>a vector of all flags can be obtained by <code>meta$flag</code></li>
 <li><a href="https://broadinstitute.github.io/picard/explain-flags.html" class="uri">https://broadinstitute.github.io/picard/explain-flags.html</a></li>
 </ul>
@@ -1035,49 +948,25 @@ bam.filt</code></pre>
 <p>Depending on the kind of sequencing we have performed, we might be cautious about reads that are flagged as PCR or optical duplicates. Most downstream analysis tools will ignore these, but we rarely remove them altogether from the file.</p>
 <p>The value of the flag is a combination of different quality indicators, so a PCR duplicate can be indicated by many different values. In our case, we don’t have many different flags, so it is not too much work to identify all duplicates.</p>
 <pre class="r"><code>dups &lt;- which(meta$flag %in% c(1107,1123,1171,1187))
-length(dups)</code></pre>
+length(dups)
+bam[dups]</code></pre>
 <pre><code>## [1] 177715</code></pre>
-<pre class="r"><code>bam[dups]</code></pre>
-<pre><code>## GAlignments object with 177715 alignments and 3 metadata columns:
+<pre><code>## GAlignments object with 3 alignments and 3 metadata columns:
 ##                    seqnames strand       cigar    qwidth     start
 ##                       &lt;Rle&gt;  &lt;Rle&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt;
 ##   SRR081727.510557        1      +         68M        68     69672
 ##   SRR081682.538815        1      +         68M        68     69710
 ##   SRR081727.510557        1      -         68M        68     69835
-##   SRR081682.538815        1      -         68M        68     69887
-##    SRR084798.67606        1      +         68M        68    250104
-##                ...      ...    ...         ...       ...       ...
-##   SRR079397.640524   hs37d5      -         68M        68  35388153
-##   SRR081743.817101   hs37d5      +         68M        68  35398415
-##   SRR081743.817101   hs37d5      -         68M        68  35398421
-##   SRR084838.868293   hs37d5      +         68M        68  35442905
-##   SRR084838.868293   hs37d5      -         68M        68  35442963
 ##                          end     width     njunc |                     seq
 ##                    &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; |          &lt;DNAStringSet&gt;
 ##   SRR081727.510557     69739        68         0 | TTACAGTGGT...ATCCTAATGA
 ##   SRR081682.538815     69777        68         0 | TAATCATCTC...GTCCAAAGCT
 ##   SRR081727.510557     69902        68         0 | TTTATTTATG...ATTCTGTGAT
-##   SRR081682.538815     69954        68         0 | TATTTTATTC...AGACATGAAG
-##    SRR084798.67606    250171        68         0 | GTATTTTTGG...CCTCAGGTGA
-##                ...       ...       ...       ... .                     ...
-##   SRR079397.640524  35388220        68         0 | GGTTTCAGAA...AGGCCGCCTG
-##   SRR081743.817101  35398482        68         0 | CCATTCCATT...TTCCATTTCA
-##   SRR081743.817101  35398488        68         0 | CATTCCATTC...TTCATTCCAT
-##   SRR084838.868293  35442972        68         0 | CATTTGGGTT...TCCATTCCAT
-##   SRR084838.868293  35443030        68         0 | TCCATTCCAT...ATTCCATTCT
 ##                         mapq      flag
 ##                    &lt;integer&gt; &lt;integer&gt;
 ##   SRR081727.510557         3      1123
 ##   SRR081682.538815         3      1123
 ##   SRR081727.510557         3      1171
-##   SRR081682.538815         3      1171
-##    SRR084798.67606         5      1123
-##                ...       ...       ...
-##   SRR079397.640524         6      1171
-##   SRR081743.817101        25      1123
-##   SRR081743.817101        27      1171
-##   SRR084838.868293        34      1123
-##   SRR084838.868293        35      1171
 ##   -------
 ##   seqinfo: 86 sequences from an unspecified genome</code></pre>
 <p>Another option is to produce a convenient matrix which tabulates what flags have been set for each read. From this table we can identify the duplicates</p>
@@ -1110,12 +999,13 @@ dim(flagMat)</code></pre>
 <pre><code>## 
 ##        0        1 
 ## 12403965   177715</code></pre>
+<p>N.B. These numbers should tally with the <code>samtools flagstat</code> output that we saw earlier.</p>
 <p>If we wanted to ignore the duplicates from the start, we can infact tell <code>readGAlignments</code> to ignore them by making use of the <code>scanBamFlag</code> option</p>
 <pre class="r"><code>bam.nodups &lt;- readGAlignments(file=&quot;paired.bam&quot;, param=ScanBamParam(flag=scanBamFlag(isDuplicate = FALSE)))</code></pre>
-<p>Another situation where we might want to focus on a subset of reads from the start, is when we want to analyse a particular gene. Provided that the <code>.bam</code> file has been indexed (creating a <code>.bam.bai</code> file in the same directory), we can <em>very</em> quickly jump to a particular genomic region</p>
+<p>Another situation where we might want to focus on a subset of reads from the start, is when we want to analyse a particular gene. Provided that the <code>.bam</code> file has been indexed (creating a <code>.bam.bai</code> file in the same directory), we can <em>very</em> quickly jump to a particular genomic region. Notice that this (should) give the same number of reads as before when we did a <code>countOverlaps</code> operation.</p>
 <pre class="r"><code>system.time(mygene.reads &lt;- readGAlignments(file=&quot;paired.bam&quot;,param=ScanBamParam(which=mygene)))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.102   0.000   0.112</code></pre>
+##   0.104   0.004   0.291</code></pre>
 <pre class="r"><code>mygene.reads</code></pre>
 <pre><code>## GAlignments object with 225 alignments and 0 metadata columns:
 ##         seqnames strand       cigar    qwidth     start       end
@@ -1149,46 +1039,22 @@ dim(flagMat)</code></pre>
 <p>The region filer can be used in conjuction with the <code>what</code> argument to <code>ScanBamParam</code> function to provide a detailed picture of the reads for your gene</p>
 <pre class="r"><code>mygene.reads &lt;- readGAlignments(file=&quot;paired.bam&quot;,param=ScanBamParam(which=mygene, what=c(&quot;seq&quot;,&quot;mapq&quot;,&quot;flag&quot;,&quot;qual&quot;,&quot;isize&quot;)))
 mygene.reads</code></pre>
-<pre><code>## GAlignments object with 225 alignments and 5 metadata columns:
-##         seqnames strand       cigar    qwidth     start       end
-##            &lt;Rle&gt;  &lt;Rle&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
-##     [1]       17      +         76M        76   7577918   7577993
-##     [2]       17      -         76M        76   7577930   7578005
-##     [3]       17      +         76M        76   7578191   7578266
-##     [4]       17      +         68M        68   7578195   7578262
-##     [5]       17      +         68M        68   7578203   7578270
-##     ...      ...    ...         ...       ...       ...       ...
-##   [221]       17      +         68M        68   7596523   7596590
-##   [222]       17      -         68M        68   7596639   7596706
-##   [223]       17      +       67M1S        68   7597833   7597899
-##   [224]       17      -         68M        68   7597888   7597955
-##   [225]       17      +         68M        68   7598046   7598113
-##             width     njunc |                     seq      mapq      flag
-##         &lt;integer&gt; &lt;integer&gt; |          &lt;DNAStringSet&gt; &lt;integer&gt; &lt;integer&gt;
-##     [1]        76         0 | TCCGCCTGCC...GGGAGGCCCT        37       163
-##     [2]        76         0 | GGCCTCCCAA...GCCTCTGTAA        31        83
-##     [3]        76         0 | AGGGCACCAC...CCACTCGGAT        40        99
-##     [4]        68         0 | CACCACCACA...CCTTCCACTC        40       163
-##     [5]        68         0 | CACTATGTCG...TCGGATAAGA        40        99
-##     ...       ...       ... .                     ...       ...       ...
-##   [221]        68         0 | CAAAAAATCA...CTAGAGGTCT        30       163
-##   [222]        68         0 | CCTGTCAAAT...CCCCTGCCTC        25        83
-##   [223]        67         0 | TTACAGGCGT...CTGGGGGGGG        28        99
-##   [224]        68         0 | TGGCTGGTGT...GAATGCTTGA        35       147
-##   [225]        68         0 | TGAGGTGGGA...CCATTGTACT        38       163
-##                            qual     isize
-##                  &lt;PhredQuality&gt; &lt;integer&gt;
-##     [1] H;9476;:9:...@?9&lt;085==J        87
-##     [2] ##########...&gt;?&gt;&lt;&gt;&lt;&lt;&lt;&gt;S       -87
-##     [3] S=&gt;&gt;=&lt;&lt;&gt;&lt;&lt;...?&gt;==??8??P       202
-##     [4] Q&lt;;=&lt;;=&lt;&lt;=...@??&gt;??=&gt;?S        97
-##     [5] M&lt;;&gt;;;?=&gt;7...@@4;&gt;:&lt;??I       143
-##     ...                     ...       ...
-##   [221] S&lt;&lt;&gt;&lt;=&lt;;=&lt;...?#########       183
-##   [222] ##########...##==:&gt;&gt;&gt;&lt;L      -183
-##   [223] S=;;&lt;@==8;...==?;&gt;2%?##       122
-##   [224] Q&gt;:?&gt;6&lt;&gt;&lt;=...==:;&lt;&lt;=;=Q      -122
-##   [225] O===&gt;;=&gt;&gt;=...##########       124
+<pre><code>## GAlignments object with 3 alignments and 5 metadata columns:
+##       seqnames strand       cigar    qwidth     start       end     width
+##          &lt;Rle&gt;  &lt;Rle&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
+##   [1]       17      +         76M        76   7577918   7577993        76
+##   [2]       17      -         76M        76   7577930   7578005        76
+##   [3]       17      +         76M        76   7578191   7578266        76
+##           njunc |                     seq      mapq      flag
+##       &lt;integer&gt; |          &lt;DNAStringSet&gt; &lt;integer&gt; &lt;integer&gt;
+##   [1]         0 | TCCGCCTGCC...GGGAGGCCCT        37       163
+##   [2]         0 | GGCCTCCCAA...GCCTCTGTAA        31        83
+##   [3]         0 | AGGGCACCAC...CCACTCGGAT        40        99
+##                          qual     isize
+##                &lt;PhredQuality&gt; &lt;integer&gt;
+##   [1] H;9476;:9:...@?9&lt;085==J        87
+##   [2] ##########...&gt;?&gt;&lt;&gt;&lt;&lt;&lt;&gt;S       -87
+##   [3] S=&gt;&gt;=&lt;&lt;&gt;&lt;&lt;...?&gt;==??8??P       202
 ##   -------
 ##   seqinfo: 86 sequences from an unspecified genome</code></pre>
 </div>
@@ -1196,10 +1062,8 @@ mygene.reads</code></pre>
 <div id="pre-built-databases-of-gene-coordinates" class="section level2">
 <h2>Pre-built databases of gene coordinates</h2>
 <p>Aside from the many useful software packages, Bioconductor also provides numerous annotation resources that we can utilise in our analysis. Firstly, we have a set of organism-level packages that can translate between different types of identifer. The package for humans is called <code>org.Hs.eg.db</code>. The advantage of such a package, rather than services such as biomaRt, is that we can do queries offline. The packages are updated every 6 months, so we can always be sure of what version of the relevant databases are being used.</p>
-<pre class="r"><code>library(org.Hs.eg.db)</code></pre>
-<pre><code>## Loading required package: AnnotationDbi</code></pre>
-<pre><code>## </code></pre>
-<pre class="r"><code>org.Hs.eg.db</code></pre>
+<pre class="r"><code>library(org.Hs.eg.db)
+org.Hs.eg.db</code></pre>
 <pre><code>## OrgDb object:
 ## | DBSCHEMAVERSION: 2.1
 ## | Db type: OrgDb
@@ -1230,8 +1094,6 @@ mygene.reads</code></pre>
 ## | UPSOURCENAME: Uniprot
 ## | UPSOURCEURL: http://www.UniProt.org/
 ## | UPSOURCEDATE: Wed Mar 23 15:50:09 2016</code></pre>
-<pre><code>## 
-## Please see: help('select') for usage information</code></pre>
 <p>There are several types of “key” we can use to make a query, and we have to specify one of these names.</p>
 <pre class="r"><code>keytypes(org.Hs.eg.db)</code></pre>
 <pre><code>##  [1] &quot;ACCNUM&quot;       &quot;ALIAS&quot;        &quot;ENSEMBL&quot;      &quot;ENSEMBLPROT&quot; 
@@ -1266,16 +1128,11 @@ mygene.reads</code></pre>
 ## 2   PTEN     5728 ENSG00000171862
 ## 3   PTEN     5728 ENSG00000283094</code></pre>
 <p>In this case, we have “many” (well, two) values of <code>ENSEMBL</code> for the gene <code>PTEN</code>. In practice this means we probably want to think carefully about merging this data with other tables.</p>
-<hr />
-<div id="exercise-6" class="section level3">
-<h3>Exercise</h3>
-<hr />
-<p>You might expect to be able to retrieve information about the coordinates for a particular gene. This was supported until recently, but the recommended approach now is to use another class of packages which describe the structure of genes in more detail.</p>
+<p>You might expect to be able to retrieve information about the coordinates for a particular gene using the same interface. This was supported until recently, but the recommended approach now is to use another class of packages which describe the structure of genes in more detail.</p>
 <p>The packages with the prefix <code>TxDb....</code> represent the structure of all genes for a given organism in an efficient manner. For humans, we can use the package <code>TxDb.Hsapiens.UCSC.hg19.knownGene</code> to tell us about transcripts for the <code>hg19</code> build of the genome. The package was generated using tables from the <a href="https://www.genome.ucsc.edu/">UCSC genome browser</a></p>
 <p>As with the <code>org.Hs.eg.db</code> package we can load the package and inspect the kind of mappings available to us.</p>
-<pre class="r"><code>library(TxDb.Hsapiens.UCSC.hg19.knownGene)</code></pre>
-<pre><code>## Loading required package: GenomicFeatures</code></pre>
-<pre class="r"><code>txdb &lt;- TxDb.Hsapiens.UCSC.hg19.knownGene
+<pre class="r"><code>library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb &lt;- TxDb.Hsapiens.UCSC.hg19.knownGene
 columns(txdb)</code></pre>
 <pre><code>##  [1] &quot;CDSCHROM&quot;   &quot;CDSEND&quot;     &quot;CDSID&quot;      &quot;CDSNAME&quot;    &quot;CDSSTART&quot;  
 ##  [6] &quot;CDSSTRAND&quot;  &quot;EXONCHROM&quot;  &quot;EXONEND&quot;    &quot;EXONID&quot;     &quot;EXONNAME&quot;  
@@ -1325,8 +1182,7 @@ columns(txdb)</code></pre>
 ## 33    672     chr17          -  41243117 41246877
 ## 34    672     chr17          -  41262482 41262597</code></pre>
 <hr />
-</div>
-<div id="exercise-7" class="section level3">
+<div id="exercise-5" class="section level3">
 <h3>Exercise</h3>
 <ul>
 <li>Using the results from the previous exercise, retrieve the exon coordinates for the gene <code>PTEN</code></li>
@@ -1427,19 +1283,48 @@ mygene</code></pre>
 ##   [345]        68         0
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome</code></pre>
-<p>NOTE:- it also seems that the Mitochondial sequence is a different length in the reference that these reads were aligned to, compared to the transcript database. It may seem like a trivial difference, but will cause an error if we don’t perform the subset.</p>
+<p>NOTE:- it also seems that the Mitochondial sequence is a different length in the reference that these reads were aligned to, compared to the transcript database. It may seem like a trivial difference, but will cause an error if we don’t perform the subset to just chromosome 17.</p>
 <pre><code>Error in mergeNamedAtomicVectors(seqlengths(x), seqlengths(y), what = c(&quot;sequence&quot;,  : 
   sequence MT has incompatible seqlengths:
   - in 'x': 16569
   - in 'y': 16571</code></pre>
+<p>Per-exon counts can be achieved using the <code>countOverlaps</code> function:-</p>
 <pre class="r"><code>countOverlaps(mygene,mybam.chr17)</code></pre>
 <pre><code>##  [1]   8   6   4   0   1  12   3   3   5  24   5   8   8   1  13   2 207
 ## [18] 204   4   1   2   7   7  18   7   2   2   0   0   4   1   1   1   1</code></pre>
+<p>And finally, we should note that we could subset just the reads for this gene with the following set of commands. The only thing we need to know in advance is the Entrez ID of our gene.</p>
+<pre class="r"><code>library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb &lt;- TxDb.Hsapiens.UCSC.hg19.knownGene
+allex &lt;- exonsBy(txdb, &quot;gene&quot;)
+mygene &lt;- allex[[&quot;672&quot;]]
+seqlevelsStyle(mygene) &lt;- &quot;Ensembl&quot;
+mygene &lt;- keepSeqlevels(mygene,&quot;17&quot;)
+reads &lt;- readGAlignments(&quot;paired.bam&quot;,param=ScanBamParam(which=mygene))</code></pre>
 </div>
 </div>
 </div>
-<div id="references" class="section level1">
-<h1>References</h1>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>We have explored the properties of bam files using Bioconductor. The techniques and types of object we have learnt about we crop-up again-and-again in the course. The vast majority of NGS analysis tools in Bioconductor will use <code>GenomicRanges</code> and <code>TxDb</code> objects in some form.</p>
+<p>Due to the high-volume of the dataset some of the tools and pipelines we use will not be in R. However, you will still be able to interrogate the results you obtain and explore them in more detail using R.</p>
+<hr />
+<div id="exercise-6" class="section level3">
+<h3>Exercise</h3>
+<ul>
+<li>Find the locations of all exons on chromosome 22</li>
+<li>Create a subset of reads that align to chromosome 22
+<ul>
+<li>make sure the sequence names are in the same format</li>
+</ul></li>
+<li>What propotion of reads are located outside of exons?</li>
+<li>Do we have any regions with unusually-high coverage?</li>
+</ul>
+<pre class="r"><code>reads.chr22 &lt;- readGAlignments(&quot;paired.bam&quot;,param=ScanBamParam(which=GRanges(&quot;22&quot;, IRanges(1, 51304566))))
+reads.exonic &lt;- reads.chr22[reads.chr22 %over% ex.22]
+reads.nonex &lt;- reads.chr22[!reads.chr22 %over% ex.22]
+length(reads.nonex) / length(reads.chr22) </code></pre>
+<pre><code>## [1] 0.7987729</code></pre>
+</div>
 </div>
 
 
