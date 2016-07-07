@@ -117,7 +117,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Understanding Sequencing Reads</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>Last modified: 02 Jul 2016</em></h4>
+<h4 class="date"><em>Last modified: 07 Jul 2016</em></h4>
 
 </div>
 
@@ -272,7 +272,7 @@ $(document).ready(function () {
 </ul>
 <hr />
 <p>Based on these plots we may want to <em>trim</em> our data; <em>fastqc will not do this for us</em>.</p>
-<p>Popular choices are <a href="http://hannonlab.cshl.edu/fastx_toolkit/">fastx_toolit</a>, <a href="http://www.usadellab.org/cms/index.php?page=trimmomatic">trimmomatic</a> and <a href="http://cutadapt.readthedocs.io/en/stable/index.html">cutadapt</a>; both of which should be installed on your computers. As implied by the name, <code>cutadapt</code> is useful for removing adaptor sequences.</p>
+<p>Popular choices are <a href="http://hannonlab.cshl.edu/fastx_toolkit/">fastx_toolit</a>, <a href="http://www.usadellab.org/cms/index.php?page=trimmomatic">trimmomatic</a> and <a href="http://cutadapt.readthedocs.io/en/stable/index.html">cutadapt</a>; all of which should be installed on your computers. As implied by the name, <code>cutadapt</code> is useful for removing adaptor sequences.</p>
 <p><code>fastx_toolkit</code> allows us to remove reads that do not have a high enough proportion of high-quality reads.</p>
 <pre><code>fastq_quality_filter -v Q 33 -q 20 -p 75 -i Day1/sample.fq1 -o Day1/sample_filtered.fq</code></pre>
 <p>the options were used:-</p>
@@ -337,8 +337,17 @@ myquals[old.ids %in% missing.ids]</code></pre>
 ## [319211]    68 H&lt;.3*;:&lt;&lt;&lt;###################...############################
 ## [319212]    68 #############################...############################
 ## [319213]    68 #############################...############################</code></pre>
-<p>We could re-run fastqc and observe what effect this has on the results</p>
-<pre><code>fastqc sample.trimmed.fq1</code></pre>
+<hr />
+</div>
+<div id="exercise-1" class="section level3">
+<h3>Exercise</h3>
+<ul>
+<li>Re-run <code>fastqc</code> and observe what effect this has on the results</li>
+</ul>
+<pre><code>fastqc sample.trimmed.fq1
+fastqc sample.fastx.trimmed.fq1
+fastqc sample.filtered.fq1</code></pre>
+<hr />
 </div>
 </div>
 </div>
@@ -358,19 +367,24 @@ myquals[old.ids %in% missing.ids]</code></pre>
 <li>many, many more…..</li>
 </ul></li>
 </ul>
-<p>For completeness, we will show the commands used to aligned these two example fastq files</p>
-<pre><code>bwa aln ../ref_data/human_g1k_v37.fasta sample.fq1 &gt; sample_1.sai
+<p>For completeness, we will show the commands used to aligned these two example fastq files.</p>
+<p>We have previously downloaded a reference genome from the 1000 genomes into a directory <code>raw_data</code></p>
+<pre><code>wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz -P ref_data/
+gunzip ref_data/human_g1k_v37.fasta.gz</code></pre>
+<p><code>bwa</code> can <em>index</em> the unzipped <code>.fasta</code> file. The option <code>-p</code> allows us how we want to prefix all the files that the indexing procedure creates. <strong><em>[N.B this step will take a long time]</em></strong></p>
+<pre><code>bwa index -p hg19 -a bwtsw ref_data/human_g1k_v37.fasta</code></pre>
+<p>Here’s one we made earlier!</p>
+<pre><code>ls -l ref_data/</code></pre>
+<p>The command to perform the alignment is <code>bwa aln</code> which has many options. We are going to stick with the default.</p>
+<pre><code>bwa aln</code></pre>
+<p>Each <code>.fastq</code> file needs to be aligned separately. The output from this step is in a binary format that we cannot interpret directly.</p>
+<pre><code>bwa aln ref_data/hg19 Day1/sample.fq1 &gt; sample_1.sai
 
-bwa aln ../ref_data/human_g1k_v37.fasta sample.fq2 &gt; sample_2.sai
-
-bwa sampe ../ref_data/human_g1k_v37.fasta sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam 
- 
-samtools view -bS sample.sam &gt; sample.bam 
-
-samtools sort sample.bam sample.sorted
-
-samtools index sample.sorted.bam
+bwa aln ref_data/hg19 Day1/sample.fq2 &gt; sample_2.sai
 </code></pre>
+<p>We need to make use of the <code>bwa sampe</code> command to create a human-readable format. We give it the files from the previous step and the fastq files.</p>
+<pre><code>bwa sampe ../ref_data/human_g1k_v37.fasta sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam </code></pre>
+<p>The output is a <code>.sam</code> file that will be described in the next section</p>
 </div>
 <div id="appendix" class="section level1">
 <h1><a name="appendix"></a> Appendix</h1>
