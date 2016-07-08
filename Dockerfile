@@ -54,10 +54,10 @@ RUN wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmoma
 RUN unzip Trimmomatic-0.36.zip
 ENV TRIMMOMATIC /tmp/Trimmomatic-0.36/trimmomatic-0.36.jar
 WORKDIR /tmp
-RUN wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
-RUN unzip snpEff_latest_core.zip
-ENV SNPEFF /tmp/snpEff/snpEff.jar
-RUN java -jar /tmp/snpEff/snpEff.jar download GRCh37.75
+#RUN wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
+#RUN unzip snpEff_latest_core.zip
+#ENV SNPEFF /tmp/snpEff/snpEff.jar
+#RUN java -jar /tmp/snpEff/snpEff.jar download GRCh37.75
 RUN git clone --recursive https://github.com/vcflib/vcflib.git
 WORKDIR vcflib
 RUN make
