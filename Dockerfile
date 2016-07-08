@@ -68,8 +68,22 @@ RUN ln -s /tmp/delly_v0.7.3_linux_x86_64bit /usr/bin/delly
 RUN git clone https://github.com/markdunning/summer-school2016.git /home/Course_Materials/
 RUN ls /home/Course_Materials/
 WORKDIR /home/Course_Materials
-RUN chmod +x getCourseData.sh
-RUN ./getCourseData.sh
+RUN chmod +x ref_data/download.sh
+WORKDIR ref_data/
+RUN ./download.sh
+WORKDIR /home/Course_Materials
+RUN chmod +x data/hapmap/download.sh
+WORKDIR data/hapmap
+RUN ./download.sh
+WORKDIR /home/Course_Materials
+chmod +x Day1/data_for_day1.sh
+WORKDIR Day1
+RUN ./data_for_day1.sh
+WORKDIR /home/Course_Materials
+RUN chmod +x data/cell-line/downsampled
+RUN chmod +x ref_data/annovar/annovar_commands.sh
+#WORKDIR data/cell-line/downsampled
+#RUN ./download.sh
 RUN R -f installBioCPkgs.R
 WORKDIR ref_data
 RUN bwa index -p hg19 -a bwtsw human_g1k_v37.fasta
