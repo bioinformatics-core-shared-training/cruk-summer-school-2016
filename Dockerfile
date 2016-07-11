@@ -65,26 +65,26 @@ ENV VCFLIB /tmp/vcflib
 WORKDIR /tmp
 RUN wget https://github.com/tobiasrausch/delly/releases/download/v0.7.3/delly_v0.7.3_linux_x86_64bit
 RUN ln -s /tmp/delly_v0.7.3_linux_x86_64bit /usr/bin/delly
-RUN git clone https://github.com/markdunning/summer-school2016.git /home/Course_Materials/
-RUN ls /home/Course_Materials/
-WORKDIR /home/Course_Materials
-RUN chmod +x ref_data/download.sh
-WORKDIR ref_data/
-RUN ./download.sh
-WORKDIR /home/Course_Materials
-RUN chmod +x data/hapmap/download.sh
-WORKDIR data/hapmap
-RUN ./download.sh
-WORKDIR /home/Course_Materials
-chmod +x Day1/data_for_day1.sh
-WORKDIR Day1
-RUN ./data_for_day1.sh
-WORKDIR /home/Course_Materials
-RUN chmod +x data/cell-line/downsampled
-RUN chmod +x ref_data/annovar/annovar_commands.sh
-#WORKDIR data/cell-line/downsampled
+#RUN git clone https://github.com/markdunning/summer-school2016.git /home/participant/Course_Materials/
+#RUN ls /home/participant/Course_Materials/
+#WORKDIR /home/participant/Course_Materials
+#RUN chmod +x ref_data/download.sh
+#WORKDIR ref_data/
+#RUN ./download.sh
+#WORKDIR /home/participant/Course_Materials
+#RUN chmod +x data/hapmap/download.sh
+#WORKDIR data/hapmap
+#RUN ./download.sh
+#WORKDIR /home/participant/Course_Materials
+#chmod +x Day1/data_for_day1.sh
+#WORKDIR Day1
+#RUN ./data_for_day1.sh
+#WORKDIR /home/participant/Course_Materials
+#RUN chmod +x data/cell-line/downsampled
+#RUN chmod +x ref_data/annovar/annovar_commands.sh
+##WORKDIR data/cell-line/downsampled
 #RUN ./download.sh
 RUN R -f installBioCPkgs.R
-WORKDIR ref_data
+#WORKDIR ref_data
 RUN bwa index -p hg19 -a bwtsw human_g1k_v37.fasta
-WORKDIR /home/Course_Materials
+WORKDIR /home/participant/Course_Materials
