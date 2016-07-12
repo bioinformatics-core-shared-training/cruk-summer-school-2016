@@ -14,27 +14,43 @@ BiocStyle::markdown()
 # Welcome!
 
 
-## Who's who 
+
+# Who's who 
+![](http://www.cruk.cam.ac.uk/sites/default/files/styles/leading/public/basic-pages/CRUK-CI-external-autumn.jpg?itok=849P8Q53)    
+
+We're based at [Cancer Research Uk Cambridge Institute](http://www.cruk.cam.ac.uk/), about 2 miles south of here
 
 ![](../images/whos-who.png)
 
-Instructors
 
+
+## Top Row
 - Mark
-    + Bioinformatics Training Coordinator, Bioinformatics Core, Cancer Research Uk
+    + Bioinformatics Training Coordinator, Bioinformatics Core
 - Andy
-    + Senior Research Associate, Tavare lab (Statistics and Computational Biology ), Cancer Research Uk
+    + Senior Research Associate, Tavare lab (Statistics and Computational Biology )
 - Oscar
-    + Senior Research Associate, Caldas lab (Breast Cancer Genomics), Cancer Research Uk
-- Geoff
-    + Senior Research Associate, Markowetz (Systems Genetics of Cancer) and Brenton (Functional genomics of ovarian cancer), Cancer Research Uk
+    + Senior Research Associate, Caldas lab (Breast Cancer Genomics)
     
-## Who are you?
+## Second Row
+
+- Geoff
+    + Senior Research Associate, Markowetz (Systems Genetics of Cancer) and Brenton (Functional genomics of ovarian cancer)
+- Matt
+    + Bioinformatics Core Head
+- Gabriella
+    + Bioinformatics Training Facility
+- Paul
+    + Bioinformatics Training Facility
+    
+Huge thanks too to Helen Anderson (CRUK) and Cathy Hemmings (Genetics) for admin support
+
+# Who are you?
 
 ```{r eval=FALSE,echo=FALSE}
 library(dplyr)
 library(xkcd)
-ppl <- tbl_df(read.csv("../external-applications-to-filter.csv")) %>% filter(Selected == "Y")
+ppl <- tbl_df(read.csv("../JUNE 2016 LIST.csv")) 
 
 data <- count(ppl, Institute)
 data$xmin <- 1:10
@@ -55,17 +71,18 @@ p <- ggplot() + xkcdrect(mapping, data) + xkcdaxis(xrange,yrange)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
-ppl <- tbl_df(read.csv("../external-applications-to-filter.csv")) %>% filter(Selected == "Y")
+ppl <- tbl_df(read.csv("../JUNE 2016 LIST.csv"))
 p1 <- ggplot(ppl, aes(x = Institute)) + geom_bar(fill=rgb(29,0,150,maxColorValue=255)) + coord_flip()
 p2 <- ggplot(ppl, aes(x=Position)) + geom_bar(fill=rgb(236,0,140,maxColorValue=255)) + coord_flip()
-grid.arrange(p1,p2,ncol=2)
+p3 <- ggplot(ppl, aes(x=Gender,fill=Gender)) + geom_bar() + scale_fill_manual(values=c(rgb(29,0,150,maxColorValue=255),rgb(236,0,140,maxColorValue=255)))
+grid.arrange(p1,p2,p3,ncol=3)
 ```
 
 
-## Admin
+##Admin
 
 
-## About the Course
+# About the Course
 
 - We will tell about '*best practice*' tools that we use in daily work as Bioinformaticians
 - You will (probably) not come away being an expert
@@ -73,24 +90,17 @@ grid.arrange(p1,p2,ncol=2)
     + plus, it is a fast-moving field
 - Whole genome and exome DNA-seq only
     + much of the initial processing is the same for other assays
+    + see our [previous summer school](http://bioinformatics-core-shared-training.github.io/cruk-bioinf-sschool/) for details of RNA- and ChIP-seq
 - However, we hope that you will
     + Understand how your data are processed
     + Be able to explore your data - no programming required
+    + Understand the issues
+    + Communicate more effectively with the Bioinformaticians dealing with your data
     + Increase confidence with R and Bioconductor
+    + Know where to get help
     + Be able to explore new technologies, methods, tools as they come out
+    + Meet your colleagues from other CRUK institutes
 
-
-## Further disclaimer
-
-![fisher](../images/fisher.jpg)
-
-> To consult the statistician after an experiment is finished is often merely to ask him to conduct a post mortem examination. He can perhaps say what the experiment died of.”. R.A. Fisher, 1938
-
-If you haven't designed your experiment properly, then all the Bioinformatics we teach you won't help: Consult with your local statistician - preferably **not the day before your grant is due!!!!**
-
-<iframe width="420" height="315" src="https://www.youtube.com/embed/Hz1fyhVOjr4" frameborder="0" allowfullscreen></iframe>
-
-- We have some [materials](http://bioinformatics-core-shared-training.github.io/experimental-design/) you can look at
 
 
 # Course Outline
@@ -100,18 +110,20 @@ If you haven't designed your experiment properly, then all the Bioinformatics we
 - Recap of R
 - Overview of NGS data
 - Hands-on experience with NGS data
-- 
+
 
 ## Day 2
 
 - Theory of SNV-calling
 - How SNV calls are represented
-- Issues with Somatic calling
-- Hands-on practice assessing SNV calls
+- Copy-number analysis
 
 ## Day 3
 
-- Copy-number analysis
+
+- Issues with Somatic calling
+- Hands-on practice assessing Somatic calls
+- Annotating and prioritsing calls
 
 ## Day 4
 
@@ -121,69 +133,43 @@ If you haven't designed your experiment properly, then all the Bioinformatics we
 
 - Dealing with collections of genomes
 
-# Historical context
 
-## Cast your minds back a few years..
+## Disclaimer
 
-![array-summary](../images/array-summary.png)
+![](../images/fisher.jpg)
 
-## Plenty of success stories with microarrays
+> To consult the statistician after an experiment is finished is often merely to ask him to conduct a post mortem examination. He can perhaps say what the experiment died of.”. R.A. Fisher, 1938
 
-![array-achievements](../images/array-achievements.png)
+If you haven't designed your experiment properly, then all the Bioinformatics we teach you won't help: Consult with your local statistician - preferably **not the day before your grant is due!!!!**
 
+<iframe width="420" height="315" src="https://www.youtube.com/embed/Hz1fyhVOjr4" frameborder="0" allowfullscreen></iframe>
 
+- We have some [materials](http://bioinformatics-core-shared-training.github.io/experimental-design/) you can look at
 
+## Also bear in mind..
 
+- No "*one-size fits all*" solution...
 
-# Why do sequencing?
-
-##Microarrays vs sequencing
-
-- Probe design issues with microarrays
-    + *'Dorian Gray effect'* http://www.biomedcentral.com/1471-2105/5/111
-    + ' ...mappings are frozen, as a Dorian Gray-like syndrome: the apparent eternal youth of the mapping does not reflect that somewhere the 'picture of it' decays'
-- Sequencing data are 'future proof'
-    + if a new genome version comes along, just re-align the data!
-    + can grab published-data from public repositories and re-align to **your** own choice of genome / transcripts and aligner
-- Limited number of novel findings from microarays
-    + can't find what you're not looking for!
-- Genome coverage
-    + some areas of genome are problematic to design probes for
-- Maturity of analysis techniques
-    + on the other hand, analysis methods and workflows for microarrays are well-established
-    + until recently...
+    + Every dataset will have it's own quirks and artefacts
+    + You'll need to become familar with how to inspect your data
+    +     
     
-## The cost of sequencing
+    
+# About the data
 
-![](../images/seq-costs.png)
+We will use publically-available datasets that you can take away with you at the end of the course
 
-##Reports of the death of microarrays
+## HCC1143
 
-![](../images/microarray-dead.png)
+A breast-cancer cell-line on which we have data available and has been used as part of a "*benchmarking*" dataset to evaluate different variant-callers
 
-##Reports of the death of microarrays. Greatly exagerated?
+![](http://www.pawefish.path.cam.ac.uk/BreastLineImages/Hcc1143m24w.gif)
 
-http://core-genomics.blogspot.co.uk/2014/08/seqc-kills-microarrays-not-quite.html
+- http://www.pawefish.path.cam.ac.uk/BreastCellLineDescriptions/HCC1143.html
+- https://cansar.icr.ac.uk/cansar/cell-lines/HCC1143/copy_number_variation/
+- https://cghub.ucsc.edu/datasets/benchmark_download.html
 
-![](../images/hadfield-blog.png)
 
-## What did we learn from arrays?
 
-- Experimental Design; despite this fancy new technolgy, if we don't design the experiments properly we won't get meaningful conclusions
-- Quality assessment; Yes, NGS experiments can still go wrong!
-- Normalisation; NGS data come with their own set of biases and error that need to be accounted for
-- Stats; testing for RNA-seq is built-upon the knowledge from microarrays
-- Plenty of tools and workflows were established.
-- ***Don't forget about arrays; the data are all out there somewhere waiting to be discovered and explored***
-
-## Reproducibility is key
-
-![duke-scandal](../images/rep-research-nyt.png)
-
-Two Biostatiscians (later termed '*Forensic Bioinformaticians*') from M.D. Anderson used R extensively during their re-analysis and investigation of a Clinical Prognostication paper from Duke. The subsequent [scandal](https://www.youtube.com/watch?v=W5sZTNPMQRM) put Reproducible Research on the map.
-
-Keith Baggerly's talk from Cambridge in 2010 is highy-recommended.
-
-<iframe width="420" height="315" src="https://www.youtube.com/embed/7gYIs7uYbMo" frameborder="0" allowfullscreen></iframe>
-
+# About the software
 
