@@ -11,7 +11,6 @@
 
 <meta name="author" content="Mark Dunning" />
 
-<meta name="date" content="2016-06-24" />
 
 <title>Annotating and Filtering</title>
 
@@ -118,100 +117,177 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Annotating and Filtering</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>24 June 2016</em></h4>
+<h4 class="date"><em>Last modified: 14 Jul 2016</em></h4>
 
 </div>
 
 
 <div id="outline" class="section level1">
 <h1>Outline</h1>
-<p>We’ve</p>
-<div id="introduction-to-annovar" class="section level2">
-<h2>Introduction to annovar</h2>
-<p><strong><em>Important:- annovar license</em></strong></p>
-<p><code>annovar</code> is free for academic use. However, you need to supply a valid academic email address in order to download the software. If you wish to use <code>annovar</code> after the course. You will have to fill out the form on the <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/download/">annovar</a> website.</p>
-<p><code>annovar</code> provides “gene-based”, region-based&quot; and “filter-based” annotation.</p>
+<p>Imagine that we’ve called a set of somatic variants from our paired tumour and normal sample. From the previous section we can define a set of filters that can give us confidence that our variants are legitimate biological differences, and not technical noise. In this session we will go to the next step and see how we can gain biological intuition from our calls.</p>
 <ul>
-<li><em>Gene-based</em>: whether variants cause a protein-coding change. If so, it will report the affected amino acids
+<li>Using <code>annovar</code> to retrieve and annotate using pre-defined databases</li>
+<li>Using <code>annovar</code> to create a human-readable and searchable table of annotation results</li>
+<li>Recent advances in R (“<code>dplyr</code>”) that allow us to filter and subset our data more efficiently</li>
+<li>How we can prioritise our results, and write pipelines for doing so</li>
+</ul>
+</div>
+<div id="working-directory" class="section level1">
+<h1>Working Directory</h1>
+<pre><code>/home/participant/Course_Materials/Day2/</code></pre>
+<div id="why-annotate" class="section level2">
+<h2>Why annotate</h2>
 <ul>
-<li>“RefSeq genes, UCSC genes, ENSEMBL genes, GENCODE genes, AceView genes, or many other gene definition systems.”</li>
+<li>Can have huge list of variants after SNV-calling
+<ul>
+<li>order of millions even after filtering</li>
 </ul></li>
-<li><em>Region-based</em>: look for overlaps with pre-defined genomic regions
+<li>Not all will have consequences for the individual</li>
+<li>Need to functionally annotate biological and biochemical function</li>
+<li>Determine which variants have been previously-identified
 <ul>
-<li>e.g. “conserved regions among 44 species, predicted transcription factor binding sites, segmental duplication regions, GWAS hits, database of genomic variants, DNAse I hypersensitivity sites, ENCODE H3K4Me1/H3K4Me3/H3K27Ac/CTCF sites, ChIP-Seq peaks, RNA-Seq peaks, or many other annotations on genomic intervals”</li>
-</ul></li>
-<li><em>Filter-based</em>: looks for variants in pre-defined databases. Not only the genomic location is taken into account, but also the change from reference to alternate allele
-<ul>
-<li>dbSNP, 1000 Genome Project, NHLBI-ESP 6500 exomes or Exome Aggregation Consortium,</li>
+<li>in previous studies</li>
+<li>amongst healthy / diseased individuals</li>
 </ul></li>
 </ul>
-<p>annovar relies on pre-downloaded files so all queries are done offline. For the course, we have downloaded some of these files to the directory <code>/home/participant/Course_Materials/ref_data/annovar/humandb</code>. Each annotation file has a genome version associated with it. For our purposes we are going to be using <code>hg19</code>.</p>
-<pre><code>ls -l ../ref_data/annovar/humandb</code></pre>
+</div>
+<div id="introduction-to-annovar" class="section level2">
+<h2>Introduction to annovar</h2>
+<p>There are many annotation resources available, but we have chosen to demonstrate <code>annovar</code> for ease of usage and compatibility across platforms. <code>annovar</code> is a suite of perl scripts that can perform a variety of annotation and filtering tasks. It can also collate the results from annotating against different databases into one convenient table.</p>
+<p><strong><em>Important:- annovar license</em></strong></p>
+<p><code>annovar</code> is free for academic use. However, you need to supply a valid academic email address in order to download the software. If you wish to use <code>annovar</code> after the course. You will have to fill out the form on the <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/download/">annovar</a> website.</p>
+<p><code>annovar</code> provides “gene-based”, region-based&quot; and “filter-based” annotation and relies on <em>pre-downloaded</em> annotation files so all queries are done offline. Files can be downloaded from the UCSC genome browser or from the annovar website. Some of these files can be quite large, but fortunately we only have to download them once. For the course, we have downloaded some of these files to the directory <code>/home/participant/Course_Materials/software/annovar/humandb</code>. Each annotation file has a genome version associated with it. For our purposes we are going to be using <code>hg19</code>.</p>
+<p>For your reference the script to download all the resources used in this session is</p>
+<p><code>/home/participant/Course_Materials/software/annovar/annovar_commands.sh</code></p>
+<pre><code>ls -l ../software/annovar/humandb</code></pre>
 </div>
 <div id="preparing-files-for-annovar" class="section level2">
 <h2>Preparing files for annovar</h2>
-<p>Some of the commands in <code>annovar</code> require a specific input format. Fortunately, they have provided a script that can convert from popular file formats to their format.</p>
-<p>First we need to convert our <code>.vcf</code> file using a script from annovar ’convert2annovar.pl`.</p>
-<pre><code>../software/annovar/convert2annovar.pl -format vcf4old HCC1143_vs_HCC1143_BL.flagged.muts.vcf &gt; HCC1143_vs_HCC1143_BL.flagged.muts.avinput</code></pre>
-<pre><code>1   10181   10181   A   C   unknown .   63
-1   17222   17222   A   G   unknown .   36
-1   74570   74570   T   A   unknown .   15
-1   124583  124583  C   T   unknown .   13
-1   231455  231455  T   A   unknown .   109
-1   234432  234432  A   G   unknown .   123
-1   234556  234556  C   T   unknown .   78
-1   234760  234760  A   T   unknown .   60
-1   237545  237545  C   A   unknown .   39
-1   245264  245264  A   G   unknown .   39</code></pre>
-<p>“The first five space or tab delimited fields are Chromosome (”chr&quot; prefix is optional), Start, End, Reference Allelel, Alternative Allele. The rest of the columns are completely optional.&quot;</p>
+<p>Some of the commands in <code>annovar</code> require a specific input format. Fortunately, they have provided a script that can convert from popular file formats to their own format.</p>
+<p>We convert our <code>.vcf</code> file using a script from annovar <code>convert2annovar.pl</code></p>
+<pre><code>../software/annovar/convert2annovar.pl -format vcf4old -includeinfo HCC1143_vs_HCC1143_BL.flagged.muts.vcf &gt; HCC1143_vs_HCC1143_BL.flagged.muts.avinput</code></pre>
+<pre><code>-format: vcfold, the input is in vcf format
+-includeinfo: Include the INFO fields from the vcf file
+&gt;: redirect to the file of our choosing</code></pre>
+<pre><code>1   10181   10181   A   C   1   10181   270f1194-3a39-11e6-91af-e5d5521bdc57    A   C   .   PASS    DP=63;MP=9.0e-01;GP=3.3e-03;TG=AA/AC;TP=9.0e-01;SG=AA/AA;SP=9.6e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:17:0:0:1:15:0:0:2:0.0e+00   0|1:10:1:0:0:12:3:0:2:1.4e-01
+1   17222   17222   A   G   1   17222   270f155e-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=36;MP=9.0e-01;GP=9.8e-02;TG=AA/AG;TP=9.0e-01;SG=AG/AG;SP=9.8e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:13:0:1:0:1:0:0:0:6.7e-02    0|1:11:0:10:0:0:0:0:0:4.8e-01
+1   74570   74570   T   A   1   74570   270f16a8-3a39-11e6-91af-e5d5521bdc57    T   A   .   PASS    DP=15;MP=9.2e-01;GP=7.5e-02;TG=TT/AT;TP=9.1e-01;SG=AT/AT;SP=7.5e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:0:7:0:0:0:0:0.0e+00 0|1:4:0:0:4:0:0:0:0:5.0e-01
+1   124583  124583  C   T   1   124583  270f17c0-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=13;MP=9.7e-01;GP=1.7e-02;TG=CC/TT;TP=5.9e-01;SG=CC/CT;SP=3.8e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:9:0:0:0:0:0:0:0.0e+00 1|1:0:1:0:3:0:0:0:0:7.5e-01
+1   231455  231455  T   A   1   231455  270f18ce-3a39-11e6-91af-e5d5521bdc57    T   A   .   PASS    DP=109;MP=1.0e+00;GP=5.6e-04;TG=TT/AT;TP=1.0e+00;SG=AT/TT;SP=5.5e-04    GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:3:0:0:28:1:0:0:39:5.6e-02   0|1:2:0:0:12:4:0:0:20:1.6e-01
+1   234432  234432  A   G   1   234432  270f19e6-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=123;MP=9.9e-01;GP=1.0e-02;TG=AA/AG;TP=9.9e-01;SG=AG/AG;SP=1.0e-02    GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:23:0:4:0:19:0:1:0:1.1e-01   0|1:27:0:17:0:30:0:2:0:2.5e-01
+1   234556  234556  C   T   1   234556  270f1aea-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=78;MP=9.5e-01;GP=4.7e-02;TG=CC/CT;TP=9.5e-01;SG=CT/CC;SP=3.8e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:3:0:0:0:32:0:3:7.9e-02    0|1:0:1:0:1:0:31:0:7:2.0e-01
+1   234760  234760  A   T   1   234760  270f1bf8-3a39-11e6-91af-e5d5521bdc57    A   T   .   PASS    DP=60;MP=1.0e+00;GP=1.8e-05;TG=AA/AT;TP=1.0e+00;SG=AA/AA;SP=1.1e-04 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:15:0:0:0:11:0:0:0:0.0e+00   0|1:19:0:0:0:10:0:0:5:1.5e-01
+1   237545  237545  C   A   1   237545  270f1d06-3a39-11e6-91af-e5d5521bdc57    C   A   .   PASS    DP=39;MP=8.9e-01;GP=1.7e-04;TG=CC/AC;TP=8.9e-01;SG=CC/CC;SP=1.1e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:17:0:1:0:0:0:0:0.0e+00    0|1:4:15:0:0:0:2:0:0:1.9e-01
+1   245264  245264  A   G   1   245264  270f1e14-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=39;MP=1.0e+00;GP=3.0e-04;TG=AA/AG;TP=1.0e+00;SG=AG/AG;SP=3.0e-04 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:0:0:14:0:0:0:0.0e+00    0|1:0:0:0:0:18:0:7:0:2.8e-01</code></pre>
+<p>The first five columns are compulsory and contain</p>
+<ul>
+<li>Chromosome</li>
+<li>Start Position</li>
+<li>End Position</li>
+<li>Reference base(s)</li>
+<li>Observed base(s)</li>
+</ul>
+<p>All other columns are optional. They are not used in the annotation process, but will get carried-along with any annotation and filtering we perform. There is some duplication of information (e.g. position and base-change) but later will look at how to select particular columns of interest in R.</p>
 <div id="region-based-annotation" class="section level3">
 <h3>Region-based Annotation</h3>
-<p>Gene-based annotation is the default operation in annovar. The following command will annotate the file we have just prepared against the reference file located in <code>../ref_data/annovar/humandb/hg19_refGene.txt</code>.</p>
-<pre><code>../software/annovar/annotate_variation.pl -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb</code></pre>
-<p>Two files are created:- <code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.exonic_variant_function</code></p>
-<pre><code>line856 synonymous SNV  ESPN:NM_031475:exon10:c.C2217T:p.L739L, 1   6512048 6512048 C   T   unknown .   69
-line859 stopgain    TNFRSF25:NM_148965:exon4:c.G370T:p.E124X,TNFRSF25:NM_148967:exon3:c.G235T:p.E79X,TNFRSF25:NM_003790:exon4:c.G370T:p.E124X,TNFRSF25:NM_148966:exon4:c.G370T:p.E124X,TNFRSF25:NM_001039664:exon4:c.G370T:p.E124X, 1   6524705 6524705 C   A   unknown .   59
-line988 nonsynonymous SNV   PRAMEF4:NM_001009611:exon4:c.G1292A:p.S431N,    1   12939510    12939510    C   T   unknown .   56
-line994 nonsynonymous SNV   PRAMEF4:NM_001009611:exon2:c.T278A:p.L93Q,  1   12942938    12942938    A   T   unknown .   61
-line995 nonsynonymous SNV   PRAMEF4:NM_001009611:exon2:c.A275C:p.N92T,  1   12942941    12942941    T   G   unknown .   62
-line1112    unknown UNKNOWN 1   16890558    16890558    C   G   unknown .   226
-line1113    unknown UNKNOWN 1   16890559    16890559    A   G   unknown .   225
-line1119    unknown UNKNOWN 1   16894476    16894476    G   C   unknown .   216
-line1120    unknown UNKNOWN 1   16894523    16894523    G   A   unknown .   234
-line1123    unknown UNKNOWN 1   16899669    16899669    C   T   unknown .   45</code></pre>
-<p>and <code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.variant_function</code></p>
-<pre><code>intergenic  NONE(dist=NONE),DDX11L1(dist=1693)  1   10181   10181   A   C   unknown .   63
-ncRNA_intronic  WASH7P  1   17222   17222   A   G   unknown .   36
-intergenic  OR4F5(dist=4562),LOC729737(dist=60203)  1   74570   74570   T   A   unknown .   15
-intergenic  OR4F5(dist=54575),LOC729737(dist=10190) 1   124583  124583  C   T   unknown .   13
-intergenic  LOC729737(dist=90889),LOC100133331(dist=92437)  1   231455  231455  T   A   unknown .   109
-intergenic  LOC729737(dist=93866),LOC100133331(dist=89460)  1   234432  234432  A   G   unknown .   123
-intergenic  LOC729737(dist=93990),LOC100133331(dist=89336)  1   234556  234556  C   T   unknown .   78
-intergenic  LOC729737(dist=94194),LOC100133331(dist=89132)  1   234760  234760  A   T   unknown .   60
-intergenic  LOC729737(dist=96979),LOC100133331(dist=86347)  1   237545  237545  C   A   unknown .   39
-intergenic  LOC729737(dist=104698),LOC100133331(dist=78628) 1   245264  245264  A   G   unknown .   39</code></pre>
-<hr />
-<p>Exercise</p>
-<ul>
-<li>Read the variant function results into R
-<ul>
-<li><code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.variant_function</code></li>
-<li>How many of each type of variant do we have?</li>
-</ul></li>
-<li>Read the exonic variant function file into R
+<p>Gene-based annotation is the default operation in <code>annovar</code> and is used to identify variants that cause protein-coding changes. Various gene-definition systems are supported.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Database</th>
+<th align="left">Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">RefSeq</td>
+<td align="left">refGene</td>
+</tr>
+<tr class="even">
+<td align="left">UCSC</td>
+<td align="left">knownGene</td>
+</tr>
+<tr class="odd">
+<td align="left">Ensembl</td>
+<td align="left">ensGene</td>
+</tr>
+<tr class="even">
+<td align="left">Gencode</td>
+<td align="left">wgEncodeGencodeBasicV19</td>
+</tr>
+</tbody>
+</table>
+<p>The following command will annotate the file we have just prepared against the reference file located in <code>../software/annovar/humandb/hg19_refGene.txt</code>. We would normally have to specify an annotation mode and database keyword. However, region-based annotation and refGene are the defaults for the annotation script.</p>
+<pre><code>../software/annovar/annotate_variation.pl -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb</code></pre>
+<p>Two files are created:</p>
+<p>-<code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.variant_function</code></p>
+<p>This file lists <strong><em>all</em></strong> variants in the input file are pre-pends two columns. The first states whether a given variant is within an exonic or not and gives the relevant gene name.</p>
+<pre><code>intergenic  NONE(dist=NONE),DDX11L1(dist=1693)  1   10181   10181   A   C   1   10181   270f1194-3a39-11e6-91af-e5d5521bdc57    A   C   .   PASS    DP=63;MP=9.0e-01;GP=3.3e-03;TG=AA/AC;TP=9.0e-01;SG=AA/AA;SP=9.6e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:17:0:0:1:15:0:0:2:0.0e+00   0|1:10:1:0:0:12:3:0:2:1.4e-01
+ncRNA_intronic  WASH7P  1   17222   17222   A   G   1   17222   270f155e-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=36;MP=9.0e-01;GP=9.8e-02;TG=AA/AG;TP=9.0e-01;SG=AG/AG;SP=9.8e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:13:0:1:0:1:0:0:0:6.7e-02    0|1:11:0:10:0:0:0:0:0:4.8e-01
+intergenic  OR4F5(dist=4562),LOC729737(dist=60203)  1   74570   74570   T   A   1   74570   270f16a8-3a39-11e6-91af-e5d5521bdc57    T   A   .   PASS    DP=15;MP=9.2e-01;GP=7.5e-02;TG=TT/AT;TP=9.1e-01;SG=AT/AT;SP=7.5e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:0:7:0:0:0:0:0.0e+00 0|1:4:0:0:4:0:0:0:0:5.0e-01
+intergenic  OR4F5(dist=54575),LOC729737(dist=10190) 1   124583  124583  C   T   1   124583  270f17c0-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=13;MP=9.7e-01;GP=1.7e-02;TG=CC/TT;TP=5.9e-01;SG=CC/CT;SP=3.8e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:9:0:0:0:0:0:0:0.0e+00 1|1:0:1:0:3:0:0:0:0:7.5e-01
+intergenic  LOC729737(dist=90889),DQ597235(dist=89629)  1   231455  231455  T   A   1   231455  270f18ce-3a39-11e6-91af-e5d5521bdc57    T   A   .   PASS    DP=109;MP=1.0e+00;GP=5.6e-04;TG=TT/AT;TP=1.0e+00;SG=AT/TT;SP=5.5e-04    GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:3:0:0:28:1:0:0:39:5.6e-02   0|1:2:0:0:12:4:0:0:20:1.6e-01
+intergenic  LOC729737(dist=93866),DQ597235(dist=86652)  1   234432  234432  A   G   1   234432  270f19e6-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=123;MP=9.9e-01;GP=1.0e-02;TG=AA/AG;TP=9.9e-01;SG=AG/AG;SP=1.0e-02    GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:23:0:4:0:19:0:1:0:1.1e-01   0|1:27:0:17:0:30:0:2:0:2.5e-01
+intergenic  LOC729737(dist=93990),DQ597235(dist=86528)  1   234556  234556  C   T   1   234556  270f1aea-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=78;MP=9.5e-01;GP=4.7e-02;TG=CC/CT;TP=9.5e-01;SG=CT/CC;SP=3.8e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:3:0:0:0:32:0:3:7.9e-02    0|1:0:1:0:1:0:31:0:7:2.0e-01
+intergenic  LOC729737(dist=94194),DQ597235(dist=86324)  1   234760  234760  A   T   1   234760  270f1bf8-3a39-11e6-91af-e5d5521bdc57    A   T   .   PASS    DP=60;MP=1.0e+00;GP=1.8e-05;TG=AA/AT;TP=1.0e+00;SG=AA/AA;SP=1.1e-04 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:15:0:0:0:11:0:0:0:0.0e+00   0|1:19:0:0:0:10:0:0:5:1.5e-01
+intergenic  LOC729737(dist=96979),DQ597235(dist=83539)  1   237545  237545  C   A   1   237545  270f1d06-3a39-11e6-91af-e5d5521bdc57    C   A   .   PASS    DP=39;MP=8.9e-01;GP=1.7e-04;TG=CC/AC;TP=8.9e-01;SG=CC/CC;SP=1.1e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:17:0:1:0:0:0:0:0.0e+00    0|1:4:15:0:0:0:2:0:0:1.9e-01
+intergenic  LOC729737(dist=104698),DQ597235(dist=75820) 1   245264  245264  A   G   1   245264  270f1e14-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=39;MP=1.0e+00;GP=3.0e-04;TG=AA/AG;TP=1.0e+00;SG=AG/AG;SP=3.0e-04 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:0:0:14:0:0:0:0.0e+00    0|1:0:0:0:0:18:0:7:0:2.8e-01</code></pre>
+<p>The second file is</p>
 <ul>
 <li><code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.exonic_variant_function</code></li>
-<li>how many nonsyonymous SNVs do we have?</li>
-<li>how many synonymous? etc</li>
-</ul></li>
 </ul>
-<hr />
+<p>This file lists for the <strong><em>coding variants only</em></strong> whether the stated base-change will lead to a change in protein or not. Full definitions of all the terms is on the <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/gene/">annovar website</a></p>
+<p>If we wanted to annotate against UCSC gene definitions we need to add the <code>-dbtype</code> argument with the keyword <code>knownGene</code> (taken from the table above).</p>
+<pre><code>../software/annovar/annotate_variation.pl -buildver hg19 -dbtype knownGene HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb</code></pre>
 </div>
 <div id="region-based-annotation-1" class="section level3">
 <h3>Region-based annotation</h3>
-<p>More comprehensive details on the types of region-based filtering that is supported can be found on the <a href="annovar%20website">http://annovar.openbioinformatics.org/en/latest/user-guide/region/</a>.</p>
+<p>Regioin-based annotation is used when we want to see if our variants fall within pre-defined genomic regions of interest. Here we list some examples along with the “<em>keyword</em>” to be used when downloading and annotating against the database. More comprehensive details on the types of region-based filtering that is supported can be found on the <a href="annovar%20website">http://annovar.openbioinformatics.org/en/latest/user-guide/region/</a>.</p>
+<table style="width:39%;">
+<colgroup>
+<col width="19%"></col>
+<col width="19%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Database</th>
+<th align="left">Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identify-cytogenetic-band">Cytoband</a></td>
+<td align="left">cytoband</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identify-variants-disrupting-micrornas-and-snornas">microRNA and snoRNA</a></td>
+<td align="left">wgRna</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#conserved-genomic-elements-annotation">Conserved Regions</a></td>
+<td align="left">phastConsElements46way</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#transcription-factor-binding-site">Transcription Factor Binding Sites</a></td>
+<td align="left">tfbsConsSites</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identify-variants-reported-in-previously-published-gwas">Published GWAS</a></td>
+<td align="left">gwasCatalog</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identify-previously-reported-structural-variants">Database of Genomic Variants</a></td>
+<td align="left">dgvMerged</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identify-variants-located-in-segmental-duplications">Segmental Duplications</a></td>
+<td align="left">genomicSuperDups</td>
+</tr>
+</tbody>
+</table>
+<p>Annotation against regions identified in <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identify-variants-in-encode-annotated-regions">ENCODE</a> project is also described in its own section on the annovar website. Alternatively, you can specify your own regions of interest in <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#identifying-variants-in-regions-specified-in-bed-files">.bed</a> or <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/region/#annotating-custom-made-databases-conforming-to-gff3-generic-feature-format-version-3">.gff</a> format.</p>
 <p>The simplest form of region annotation is probably when we want to look at which “cytoband” each variant belongs to. This uses a reference file that contains the coordinates for each cytoband in a given genome version.</p>
-<pre><code>head ../ref_data/annovar/humandb/hg19_cytoBand.txt</code></pre>
+<pre><code>head ../software/annovar/humandb/hg19_cytoBand.txt</code></pre>
 <pre><code>chr1    0   2300000 p36.33  gneg
 chr1    2300000 5400000 p36.32  gpos25
 chr1    5400000 7200000 p36.31  gneg
@@ -222,10 +298,10 @@ chr1    16200000    20400000    p36.13  gneg
 chr1    20400000    23900000    p36.12  gpos25
 chr1    23900000    28000000    p36.11  gneg
 chr1    28000000    30200000    p35.3   gpos25</code></pre>
-<p>If didn’t already have such a file it could be downloaded using:-</p>
-<pre><code>../software/annovar/annotate_variation.pl -buildver hg19 -downdb cytoBand ../ref_data/annovar/humandb/</code></pre>
-<p>To perform the annotation, we need to specify <code>-regionanno</code>, to perform region-annotation and set the <code>dbtype</code> to <code>cytoBand</code>.</p>
-<pre><code>../software/annovar/annotate_variation.pl -regionanno -build hg19 -dbtype cytoBand  HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/</code></pre>
+<p>If didn’t already have such a file it could be downloaded using the following. The <code>cytoBand</code> keyword (from the table above) is used along with the build version <code>hg19</code>.</p>
+<pre><code>../software/annovar/annotate_variation.pl -buildver hg19 -downdb cytoBand ../software/annovar/humandb/</code></pre>
+<p>To perform the annotation, we use need to specify <code>-regionanno</code>, to perform region-annotation and set the <code>dbtype</code> to <code>cytoBand</code>.</p>
+<pre><code>../software/annovar/annotate_variation.pl -regionanno -build hg19 -dbtype cytoBand  HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/</code></pre>
 <p>This should result in a file being created with <code>.cytoBand</code> added as a file extension to your input file (e.g. <code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.cytoBand</code>). An extra column has been added to indicate which chromosome band each variant is located on. In the event of a variant spanning multiple bands (obviously not in this case), the multiple bands would be listed here.</p>
 <pre><code>head HCC1143_vs_HCC1143_BL.flagged.muts.avinput.cytoBand</code></pre>
 <pre><code>cytoBand    1p36.33 1   10181   10181   A   C   unknown .   63
@@ -238,25 +314,80 @@ cytoBand    1p36.33 1   234556  234556  C   T   unknown .   78
 cytoBand    1p36.33 1   234760  234760  A   T   unknown .   60
 cytoBand    1p36.33 1   237545  237545  C   A   unknown .   39
 cytoBand    1p36.33 1   245264  245264  A   G   unknown .   39</code></pre>
-<p>In another example, we could annotation against locations that have been reported in previous GWAS studies</p>
-<pre><code>../software/annovar/annotate_variation.pl -regionanno -build hg19 -dbtype gwasCatalog HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb</code></pre>
-<pre><code>gwasCatalog Name=F-cell distribution    1   221010205   221010205   C   T   unknown .   16
-gwasCatalog Name=IgG levels 14  106232585   106232585   A   G   unknown .   87</code></pre>
+<p>In another example, we could annotate against locations that have been reported in previous GWAS studies. The command is the same as the previous example, except we substitute <code>cytoBand</code> for the keyword for GWAS annotation (<code>gwasCatalog</code>)</p>
+<pre><code>../software/annovar/annotate_variation.pl -regionanno -build hg19 -dbtype gwasCatalog HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb</code></pre>
+<p>This time we get a file <code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.hg19_gwasCatalog</code>. The only entries in the file are those overlapping regions reported in GWAS studies</p>
+<pre><code>gwasCatalog Name=F-cell distribution    1   221010205   221010205   C   T   1   221010205   27207b6e-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=16;MP=8.2e-01;GP=1.8e-01;TG=CC/CTTTTTT;TP=3.8e-01;SG=CC/TTTTTTT;SP=2.9e-01   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:5:0:0:0:1:0:0:0.0e+00 0|1:0:0:0:5:0:1:0:4:9.0e-01
+gwasCatalog Name=IgG levels 14  106232585   106232585   A   G   14  106232585   273faa48-3a39-11e6-91af-e5d5521bdc57    A   G   .   PASS    DP=87;MP=1.0e+00;GP=9.9e-08;TG=AA/AAAAGGG;TP=8.4e-01;SG=AA/AAAAAGG;SP=1.0e-01   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:10:0:0:0:18:0:0:0:0.0e+00   0|1:19:0:8:0:17:0:15:0:3.9e-01</code></pre>
+<hr />
+<p>Exercise</p>
+<ul>
+<li>Select any of the databases from the table that you think might be relevant to your study, and annotate the example SNV calls
+<ul>
+<li>all the database files should already be downloaded.</li>
+</ul></li>
+</ul>
+<hr />
 </div>
 <div id="filter-based-annotation" class="section level3">
 <h3>Filter-based annotation</h3>
-<p>Unlike the annotation performed in the previous section, which was based purely on the genomic location, <em>filter-based</em> annotation also takes the base-change into account.</p>
-<p>Several types of database are available</p>
-<ul>
-<li><p>Frequency of variants in whole-genome data</p></li>
-<li><p>Frequency of variants in whole-exome data</p></li>
-<li><p>Functional prediction of variants in whole-genome data</p></li>
-<li><p>Functional prediction of variants in whole-exome data</p></li>
-<li><p>Disease-specific variants</p></li>
-</ul>
-<p>For example, if we want to see which of our variants are present a in database of known (or common) SNPs we could use the <code>dbSNP</code> database.</p>
+<p>Unlike the annotation performed in the previous section, which was based purely on the genomic location, <em>filter-based</em> annotation also takes the base-change into account. One can also use the observed frequency in the database population as a means to filter.</p>
+<p>As before, many types of database are available. An additional complication compared to the region filters from the previous section is that several version numbers exist for each database. In this table, we list the <em>latest</em> version available as of July 2016.</p>
+<table style="width:39%;">
+<colgroup>
+<col width="19%"></col>
+<col width="19%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Database</th>
+<th align="left">Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#dbsnp-annotations">dbSNP</a></td>
+<td align="left">snp138</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#1000-genomes-project-2015-aug-annotations">1000 Genomes</a></td>
+<td align="left">1000g2015aug</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#exac-annotations">Exome Aggregation Consortium</a></td>
+<td align="left">exac03</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#esp-exome-sequencing-project-annotations">Exome Sequencing Project</a></td>
+<td align="left">esp6500si_all</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#cg-complete-genomics-frequency-annotations">Complete Genomics Individuals</a></td>
+<td align="left">cg69</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#clinvar-annotations">ClinVar</a></td>
+<td align="left">clinvar_20160302</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#cosmic-annotations">COSMIC</a></td>
+<td align="left">cosmic70</td>
+</tr>
+<tr class="even">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#icgc-annotations">ICGC</a></td>
+<td align="left">icgc21</td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#nci60-annotations">NCI60</a></td>
+<td align="left">nci60</td>
+</tr>
+</tbody>
+</table>
+<p>As we will see, filter-based annotation is much the same as region- and gene-based. However, when downloading for the first time we have to add an additional <code>-webfrom annovar</code> argument into the command as the filter-based files are provided by the annovar website. For the purposes of this session, all the files have already been provided.</p>
+<pre><code>../software/annovar/annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cosmic70 ../software/annovar/humandb/</code></pre>
+<p>It seems natural to use the latest version of a database for the most-comprehensive annotation. However, the annovar website suggests that we be cautious with regards to <a href="http://annovar.openbioinformatics.org/en/latest/user-guide/filter/#dbsnp-annotations">dbSNP</a>. As dbSNP has been expanded to include variants from other large-scale projects (such as 1000 genomes) it has become somewhat “contaminated” by variants with very low frequency or with clinical relevance. Thus, <strong><em>dbSNP129</em></strong> is regarded as being the last clean version of the database.</p>
 <p>Now we select the <code>filter</code> option in annovar with a <code>dbtype</code> of <code>snp129</code></p>
-<pre><code>../software/annovar/annotate_variation.pl -filter -buildver hg19 -dbtype snp129  HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/</code></pre>
+<pre><code>../software/annovar/annotate_variation.pl -filter -buildver hg19 -dbtype snp129  HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/</code></pre>
 <p>This time we get two files created; <code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.hg19_snp129_dropped</code> and <code>HCC1143_vs_HCC1143_BL.flagged.muts.avinput.hg19_snp129_filtered</code>. The difference being that the <code>.._dropped</code> file contains details of all your variants that <strong><em>are</em></strong> in the database</p>
 <pre><code>head HCC1143_vs_HCC1143_BL.flagged.muts.avinput.hg19_snp129_dropped</code></pre>
 <pre><code>snp129  rs35296044  1   101039229   101039229   A   G   unknown .   20
@@ -269,9 +400,9 @@ snp129  rs61789967  1   107098608   107098608   C   G   unknown .   45
 snp129  rs56308160  1   109738123   109738123   A   C   unknown .   53
 snp129  rs60795186  1   110663138   110663138   T   C   unknown .   43
 snp129  rs409798    1   112604549   112604549   G   C   unknown .   61</code></pre>
-<p>Thus, the <code>.._filtered</code> file contains all the variants <strong><em>not found</em></strong> in the database.</p>
-<p>We can perform annotation against 1000 genomes variants with the following:-</p>
-<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype 1000g2014oct_eur -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/</code></pre>
+<p>Thus, the <code>.._filtered</code> file contains all the variants <strong><em>not found</em></strong> in the database. The implication being that we want to remove common variants found amongst healthy individuals from our list. There is nothing to stop us using multiple versions of dbSNP in the filtering as we will see later-on.</p>
+<p>We can perform annotation against 1000 genomes dataset with the following:-</p>
+<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype 1000g2015aug_all -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/</code></pre>
 <p>As before, <code>..._dropped</code> and <code>...filtered</code> files are produce. Again the <code>.._dropped</code> file contains variants that were found in the database. However, rather than printing and ID for the variant, it prints the minor allele frequency that is observed for that variant.</p>
 <pre><code>head HCC1143_vs_HCC1143_BL.flagged.muts.avinput.hg19_EUR.sites.2014_10_dropped</code></pre>
 <pre><code>1000g2014oct_eur    0.3936  1   100299638   100299638   G   A   unknown .   26
@@ -285,12 +416,30 @@ snp129  rs409798    1   112604549   112604549   G   C   unknown .   61</code></p
 1000g2014oct_eur    0.1481  1   114747562   114747562   A   C   unknown .   24
 1000g2014oct_eur    0.2704  1   116082512   116082512   T   A   unknown .   34</code></pre>
 <p>We can also provide a minor allele frequency (maf) threshold. This will mean that only variants with a maf greater than the threshold will be printed to the <code>..._dropped</code> file.</p>
-<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype 1000g2014oct_eur -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/ -maf 0.05</code></pre>
-<p>The commands above annotated against variants derived from european indivduals. If we have individuals of a different ethnicity, we probably want to use a different cohort. In this case, we annotate against frequencies observed in asian individuals.</p>
-<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype 1000g2014oct_afr -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/</code></pre>
-<p>Clinical variants…..</p>
-<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype clinvar_20160302 -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/</code></pre>
+<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype 1000g2015aug_all -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/ -maf 0.05</code></pre>
+<p>The commands above annotated against variants derived from european indivduals. If we have individuals of a different ethnicity, we probably want to use a different cohort. In this case, we annotate against frequencies observed in european individuals.</p>
+<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype 1000g2014oct_eur -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/</code></pre>
 </div>
+</div>
+<div id="healthy-or-disease-individuals" class="section level2">
+<h2>Healthy or disease individuals?</h2>
+<p>How you choose to interpret the filtering results depends on whether you are interested in variants that are exclusive to healthy or diseased individuals.</p>
+<p>Both dbSNP and 1000 genomes report frequencies amongst healthy individuals. The “complete genomics” (<code>cg69</code>) set also provides variant frequencies for 69 healthy subjects (including 46 unrelated subjects). Particularly useful for those with exome data is the ESP (Exome Sequencing Project) which aims to identify variants in exonic regions from over 6000 individuals; including however some subjects with disease.</p>
+<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype clinvar_20160302 -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/</code></pre>
+<p><code>annovar</code> can also annotate against variants that are relevant to diseases such as cancer. For example, there is the <strong><em>COSMIC</em></strong> (Catalogue of Somatic Mutations in Cancer).</p>
+<pre><code>../software/annovar/annotate_variation.pl -filter -dbtype cosmic70 -buildver hg19 HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/</code></pre>
+<p>Again, the variants found in the database are printed in the <code>_dropped</code> file along with details of the mutation in <strong>COSMIC</strong> that they match.</p>
+<pre><code>cosmic70    ID=COSM28322;OCCURENCE=2(breast)    1   108298069   108298069   G   A   1   108298069   2718f98e-3a39-11e6-91af-e5d5521bdc57    G   A   .   PASS    DP=74;MP=1.0e+00;GP=3.7e-10;TG=GG/AGG;TP=1.0e+00;SG=GG/AAG;SP=3.9e-06   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:14:0:0:0:21:0:0.0e+00   0|1:4:0:17:0:4:0:14:0:2.1e-01
+cosmic70    ID=COSM51138;OCCURENCE=1(breast)    1   147380295   147380295   C   T   1   147380295   271cec10-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=47;MP=1.0e+00;GP=4.3e-07;TG=CC/CCT;TP=1.0e+00;SG=CC/CTT;SP=1.7e-03   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:15:0:0:0:10:0:0:0.0e+00   0|1:0:9:0:3:0:8:0:2:2.3e-01
+cosmic70    ID=COSM33492;OCCURENCE=1(breast)    1   159558247   159558247   G   A   1   159558247   271e8ed0-3a39-11e6-91af-e5d5521bdc57    G   A   .   PASS    DP=49;MP=1.0e+00;GP=2.8e-07;TG=GG/AGG;TP=9.9e-01;SG=GG/AAG;SP=1.2e-02   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:16:0:0:0:10:0:0.0e+00   0|1:4:0:7:0:3:0:9:0:3.0e-01
+cosmic70    ID=COSM50598;OCCURENCE=1(breast)    1   176811562   176811562   G   T   1   176811562   271f0c52-3a39-11e6-91af-e5d5521bdc57    G   T   .   PASS    DP=51;MP=1.0e+00;GP=1.0e-08;TG=GG/GTT;TP=9.8e-01;SG=GG/GGT;SP=2.1e-02   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:16:0:0:0:15:0:0.0e+00   0|1:0:0:3:5:0:0:5:7:6.0e-01
+cosmic70    ID=COSM33493;OCCURENCE=1(breast)    1   178414751   178414751   G   C   1   178414751   271f1706-3a39-11e6-91af-e5d5521bdc57    G   C   .   PASS    DP=59;MP=1.0e+00;GP=1.7e-07;TG=GG/CGG;TP=1.0e+00;SG=GG/CCG;SP=3.6e-05   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:7:0:0:0:19:0:0.0e+00    0|1:0:3:7:0:0:4:19:0:2.1e-01
+cosmic70    ID=COSM25311;OCCURENCE=2(breast)    1   198675866   198675866   A   C   1   198675866   271f9514-3a39-11e6-91af-e5d5521bdc57    A   C   .   PASS    DP=30;MP=9.5e-01;GP=4.7e-02;TG=AA/AAAC;TP=8.9e-01;SG=AA/AACC;SP=6.6e-02 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:1:0:0:0:7:0:0:0:0.0e+00 0|1:6:1:0:0:11:4:0:0:2.3e-01
+cosmic70    ID=COSM51126;OCCURENCE=1(breast)    1   204082199   204082199   C   T   1   204082199   271fcce6-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=73;MP=1.0e+00;GP=1.8e-09;TG=CC/CCCCTT;TP=7.2e-01;SG=CC/CCCCCT;SP=2.6e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:17:0:0:0:17:0:0:0.0e+00   0|1:0:17:0:6:0:12:0:4:2.6e-01
+cosmic70    ID=COSM33529;OCCURENCE=1(breast)    1   24687508    24687508    G   A   1   24687508    2715ed34-3a39-11e6-91af-e5d5521bdc57    G   A   .   PASS    DP=78;MP=1.0e+00;GP=1.9e-12;TG=GG/AGG;TP=1.0e+00;SG=GG/AAG;SP=1.1e-05   GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:21:0:0:0:22:0:0.0e+00   0|1:3:0:13:0:4:0:15:0:2.0e-01
+cosmic70    ID=COSM50337;OCCURENCE=1(breast)    1   247320095   247320095   G   C   1   247320095   2721fdfe-3a39-11e6-91af-e5d5521bdc57    G   C   .   PASS    DP=70;MP=1.0e+00;GP=6.7e-09;TG=GG/CCCGGG;TP=5.3e-01;SG=GG/CCGGGG;SP=4.6e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:0:18:0:0:0:14:0:0.0e+00   0|1:0:5:10:0:0:10:13:0:3.9e-01
+cosmic70    ID=COSM50339;OCCURENCE=1(large_intestine),1(breast) 1   247654838   247654838   C   T   1   247654838   27220434-3a39-11e6-91af-e5d5521bdc57    C   T   .   PASS    DP=83;MP=1.0e+00;GP=9.6e-12;TG=CC/CCCCTT;TP=6.5e-01;SG=CC/CCCCCT;SP=3.3e-01 GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM   0|0:0:24:0:0:0:18:0:0:0.0e+00   0|1:0:16:0:5:0:15:0:5:2.4e-01</code></pre>
+<p>This is slightly contrary to the 1000 genomes and dbSNP filtering we did previously where we wanted to retain variants that were not found in a database. Fortunately in the next section we will look at any approach where we can get results for all our variants in a single table that we can develop our own filtering criteria for.</p>
 <div id="ljb-dbnsfp-non-synonymous-variants-annotation" class="section level3">
 <h3>LJB* (dbNSFP) non-synonymous variants annotation</h3>
 </div>
@@ -298,22 +447,31 @@ snp129  rs409798    1   112604549   112604549   G   C   unknown .   61</code></p
 <div id="combining-multiple-annotations-and-filters" class="section level2">
 <h2>Combining multiple annotations and filters</h2>
 <p>Up to this point, we have amassed quite a collection of tables of our set of variants annotated / filtered against various databases. A particularly appealing feature of <code>annovar</code> is that we can define protocols to combine multiple filters and collect the results in the same table.</p>
-<p>The <code>-protocol</code> argument is used to list what types of annotation / filtering you want to be applied. With the <code>-operation</code> argument we have to specify whether each annotation is a gene (<code>g</code>), region (<code>r</code>) or filter (<code>f</code>) -based annotation. You many need to take care to provide the same number of names in both the <code>-protocol</code> and <code>-operation</code> arguments.</p>
-<pre><code>../software/annovar/table_annovar.pl HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/ -buildver hg19 -out myanno -remove -protocol refGene,cytoBand,gwasCatalog,snp129,1000g2014oct_eur,1000g2014oct_afr,clinvar_20160302 -operation g,r,r,f,f,f,f -nastring NA -csvout</code></pre>
+<p>The <code>-protocol</code> argument is used to list what types of annotation / filtering you want to be applied. With the <code>-operation</code> argument we have to specify whether each annotation is a gene (<code>g</code>), region (<code>r</code>) or filter (<code>f</code>) -based annotation. You need to take care to provide the same number of names in both the <code>-protocol</code> and <code>-operation</code> arguments.</p>
+<pre><code>../software/annovar/table_annovar.pl HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/ -buildver hg19 -out myanno -remove -protocol refGene,cytoBand,gwasCatalog,genomicSuperDups,dgvMerged,snp129,1000g2015aug_all,esp6500si_all,clinvar_20160302,cosmic70,nci60 -operation g,r,r,r,r,f,f,f,f,f,f -nastring NA -csvout</code></pre>
 <p>The file <code>myanno.hg19_multianno.csv</code> is created. By specifying the <code>-remove</code> argument in the command, any tables that are created as part of the process are removed. This <code>.csv</code> file can now be viewed in Excel, or LibreOffice in our case (right-click on the file)</p>
+<p>Having opened this file into a spreadsheet program we can of course filter and sort the data as we see fit. However, due to the sheer number of columns we have generated this may prove a bit unwieldy. Therefore we are going to introduce an R package that will make the interrogation and comprehension of such a table more intuitive.</p>
 </div>
 </div>
 <div id="using-r-to-interrogate-and-filter-an-annotation-table" class="section level1">
 <h1>Using R to interrogate and filter an annotation table</h1>
 <div id="introducing-dplyr" class="section level2">
 <h2>Introducing dplyr</h2>
-<p><code>dplyr</code> is a very powerful package for manipulating data in tables. The <a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">cheatsheet</a> is highly recommended and summarises all the functions within the package. We won’t have time to cover everything here today.</p>
+<p><code>dplyr</code> is a very powerful package for manipulating data in tables and is part of the <em>tidy-verse</em> collection of packages that provide a seamless and consistent interface to exploring and analysing data.</p>
+<div class="figure">
+<img src="data:image/png;base64,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" alt />
+
+</div>
+<p>The process of analysing a dataset is rarely a linear one, and will generate scores of intermediate plots and tables along the way that don’t make their way to a final publication. Packages such as <code>dplyr</code> and <code>ggplot2</code> (for plotting) provide an interface whereby the effort to produce meaningful summaries and graphics of our data is minimised. This allows us to worry more about the interpretation and what questions we should ask, rather than writing code.</p>
+<p>The <a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">cheatsheet</a> is highly recommended and summarises all the functions within the package. We won’t have time to cover everything here today.</p>
+<p>For more information on <code>dplyr</code> see our one-day course <a href="http://bioinformatics-core-shared-training.github.io/r-intermediate/">Data Manipulation and Visualisation using R</a></p>
+<p>The first step is to load the <code>dplyr</code> library.</p>
 <pre class="r"><code>library(dplyr)</code></pre>
-<p>the <code>tbl_df</code> function is used to convert the standard R data.frame into a special <code>dplyr</code> one that has a nicer standard display.</p>
+<p>An incredibly useful but simple function is <code>tbl_df</code> which converts the standard R <code>data.frame</code> into a special <code>dplyr</code> one that has a nicer standard display. Rather than filling the whole R console we can see a snapshot of the data frame and summaries of the data contained in each column</p>
 <pre class="r"><code>anno &lt;- read.csv(&quot;myanno.hg19_multianno.csv&quot;)
 anno &lt;- tbl_df(anno)
 anno</code></pre>
-<pre><code>## Source: local data frame [77,702 x 20]
+<pre><code>## Source: local data frame [77,702 x 24]
 ## 
 ##       Chr  Start    End    Ref    Alt   Func.refGene
 ##    (fctr)  (int)  (int) (fctr) (fctr)         (fctr)
@@ -330,9 +488,11 @@ anno</code></pre>
 ## ..    ...    ...    ...    ...    ...            ...
 ## Variables not shown: Gene.refGene (fctr), GeneDetail.refGene (fctr),
 ##   ExonicFunc.refGene (fctr), AAChange.refGene (fctr), cytoBand (fctr),
-##   gwasCatalog (fctr), snp129 (fctr), X1000g2014oct_eur (dbl),
-##   X1000g2014oct_afr (dbl), CLINSIG (fctr), CLNDBN (fctr), CLNACC (fctr),
-##   CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
+##   gwasCatalog (fctr), genomicSuperDups (fctr), dgvMerged (fctr), snp129
+##   (fctr), X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr),
+##   CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
+<p><code>dplyr</code> introduces a series of verbs, each of which is capable of performing a specific operation on a data frame in an efficient manner. The syntax of the verbs is very consistent. Not only does this allow us to easily switch between using different operations, but we can chain the operations together as we will see later.</p>
 <div id="select" class="section level3">
 <h3>select</h3>
 <p><code>select</code> is the first of the <code>dplyr</code> verbs that can be used to pick certain columns from the table</p>
@@ -352,7 +512,10 @@ anno</code></pre>
 ## 9      intergenic
 ## 10     intergenic
 ## ..            ...</code></pre>
-<p>Mutiple columns can be selected by separating their names with a comma</p>
+<p>No great advance in our capabilities yet, as we already know how to select a variable from a table using the <code>$</code> operator</p>
+<pre class="r"><code>anno$Func.refGene</code></pre>
+<p>However, the syntax to select multiple columns is a lot more concise. Mutiple columns can be selected by separating their names with a comma</p>
+<p>Compare:-</p>
 <pre class="r"><code>select(anno, Func.refGene,ExonicFunc.refGene)</code></pre>
 <pre><code>## Source: local data frame [77,702 x 2]
 ## 
@@ -369,26 +532,47 @@ anno</code></pre>
 ## 9      intergenic                 NA
 ## 10     intergenic                 NA
 ## ..            ...                ...</code></pre>
-<p>We can select a range of columns with a <code>:</code></p>
-<pre class="r"><code>select(anno, cytoBand:X1000g2014oct_afr)</code></pre>
-<pre><code>## Source: local data frame [77,702 x 5]
+<p>to</p>
+<pre class="r"><code>anno[,c(&quot;Func.refGene&quot;,&quot;ExonicFunc.refGene&quot;)]</code></pre>
+<pre><code>## Source: local data frame [77,702 x 2]
 ## 
-##    cytoBand gwasCatalog     snp129 X1000g2014oct_eur X1000g2014oct_afr
-##      (fctr)      (fctr)     (fctr)             (dbl)             (dbl)
-## 1   1p36.33          NA         NA                NA                NA
-## 2   1p36.33          NA  rs2981830                NA                NA
-## 3   1p36.33          NA         NA                NA                NA
-## 4   1p36.33          NA         NA                NA                NA
-## 5   1p36.33          NA         NA                NA                NA
-## 6   1p36.33          NA rs62635269                NA                NA
-## 7   1p36.33          NA         NA                NA                NA
-## 8   1p36.33          NA  rs7548182                NA                NA
-## 9   1p36.33          NA         NA                NA                NA
-## 10  1p36.33          NA         NA                NA                NA
-## ..      ...         ...        ...               ...               ...</code></pre>
-<p>Or suppress columns with a <code>-</code> in front of their name</p>
+##      Func.refGene ExonicFunc.refGene
+##            (fctr)             (fctr)
+## 1      intergenic                 NA
+## 2  ncRNA_intronic                 NA
+## 3      intergenic                 NA
+## 4      intergenic                 NA
+## 5      intergenic                 NA
+## 6      intergenic                 NA
+## 7      intergenic                 NA
+## 8      intergenic                 NA
+## 9      intergenic                 NA
+## 10     intergenic                 NA
+## ..            ...                ...</code></pre>
+<p>Non R users probably find these commands a bit obtuse - why the <code>[ ]</code>? - what is <code>c</code>? - need to remember the row and column index - <code>[,...]</code> means display all rows</p>
+<p>However, <code>select</code> is a lot more intuitive; easier to convert to the sentance “Select the Func.refGene and ExonicFunc.refGene columns from patients”</p>
+<p>We can select a range of columns with a <code>:</code></p>
+<pre class="r"><code>select(anno, cytoBand:X1000g2015aug_all)</code></pre>
+<pre><code>## Source: local data frame [77,702 x 6]
+## 
+##    cytoBand gwasCatalog                              genomicSuperDups
+##      (fctr)      (fctr)                                        (fctr)
+## 1   1p36.33          NA           Score=0.991956;Name=chr15:102446355
+## 2   1p36.33          NA                Score=0.993729;Name=chr9:10843
+## 3   1p36.33          NA               Score=0.994828;Name=chr19:60000
+## 4   1p36.33          NA Score=0.99448;Name=chr5:180750353,chr1:323738
+## 5   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 6   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 7   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 8   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 9   1p36.33          NA                Score=0.992727;Name=chr1:88000
+## 10  1p36.33          NA                Score=0.992727;Name=chr1:88000
+## ..      ...         ...                                           ...
+## Variables not shown: dgvMerged (fctr), snp129 (fctr), X1000g2015aug_all
+##   (dbl)</code></pre>
+<p>Or suppress columns by putting with a <code>-</code> in front of their name</p>
 <pre class="r"><code>select(anno, -End)</code></pre>
-<pre><code>## Source: local data frame [77,702 x 19]
+<pre><code>## Source: local data frame [77,702 x 23]
 ## 
 ##       Chr  Start    Ref    Alt   Func.refGene           Gene.refGene
 ##    (fctr)  (int) (fctr) (fctr)         (fctr)                 (fctr)
@@ -396,34 +580,38 @@ anno</code></pre>
 ## 2       1  17222      A      G ncRNA_intronic                 WASH7P
 ## 3       1  74570      T      A     intergenic        OR4F5,LOC729737
 ## 4       1 124583      C      T     intergenic        OR4F5,LOC729737
-## 5       1 231455      T      A     intergenic LOC729737,LOC100132062
-## 6       1 234432      A      G     intergenic LOC729737,LOC100132062
-## 7       1 234556      C      T     intergenic LOC729737,LOC100132062
-## 8       1 234760      A      T     intergenic LOC729737,LOC100132062
-## 9       1 237545      C      A     intergenic LOC729737,LOC100132062
-## 10      1 245264      A      G     intergenic LOC729737,LOC100132062
+## 5       1 231455      T      A     intergenic LOC729737,LOC100133331
+## 6       1 234432      A      G     intergenic LOC729737,LOC100133331
+## 7       1 234556      C      T     intergenic LOC729737,LOC100133331
+## 8       1 234760      A      T     intergenic LOC729737,LOC100133331
+## 9       1 237545      C      A     intergenic LOC729737,LOC100133331
+## 10      1 245264      A      G     intergenic LOC729737,LOC100133331
 ## ..    ...    ...    ...    ...            ...                    ...
 ## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
-##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr), snp129
-##   (fctr), X1000g2014oct_eur (dbl), X1000g2014oct_afr (dbl), CLINSIG
-##   (fctr), CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
 <p>Combinations of the above are possible</p>
-<pre class="r"><code>select(anno, cytoBand:X1000g2014oct_afr,-snp129)</code></pre>
-<pre><code>## Source: local data frame [77,702 x 4]
+<pre class="r"><code>select(anno, cytoBand:X1000g2015aug_all,-snp129,-AAChange.refGene)</code></pre>
+<pre><code>## Source: local data frame [77,702 x 5]
 ## 
-##    cytoBand gwasCatalog X1000g2014oct_eur X1000g2014oct_afr
-##      (fctr)      (fctr)             (dbl)             (dbl)
-## 1   1p36.33          NA                NA                NA
-## 2   1p36.33          NA                NA                NA
-## 3   1p36.33          NA                NA                NA
-## 4   1p36.33          NA                NA                NA
-## 5   1p36.33          NA                NA                NA
-## 6   1p36.33          NA                NA                NA
-## 7   1p36.33          NA                NA                NA
-## 8   1p36.33          NA                NA                NA
-## 9   1p36.33          NA                NA                NA
-## 10  1p36.33          NA                NA                NA
-## ..      ...         ...               ...               ...</code></pre>
+##    cytoBand gwasCatalog                              genomicSuperDups
+##      (fctr)      (fctr)                                        (fctr)
+## 1   1p36.33          NA           Score=0.991956;Name=chr15:102446355
+## 2   1p36.33          NA                Score=0.993729;Name=chr9:10843
+## 3   1p36.33          NA               Score=0.994828;Name=chr19:60000
+## 4   1p36.33          NA Score=0.99448;Name=chr5:180750353,chr1:323738
+## 5   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 6   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 7   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 8   1p36.33          NA            Score=0.992138;Name=chr16:90251926
+## 9   1p36.33          NA                Score=0.992727;Name=chr1:88000
+## 10  1p36.33          NA                Score=0.992727;Name=chr1:88000
+## ..      ...         ...                                           ...
+## Variables not shown: dgvMerged (fctr), X1000g2015aug_all (dbl)</code></pre>
+<p>Some convenient functions are available so we don’t need to specify the column names in full</p>
 <pre class="r"><code>select(anno, starts_with(&quot;CLN&quot;))</code></pre>
 <pre><code>## Source: local data frame [77,702 x 4]
 ## 
@@ -440,12 +628,28 @@ anno</code></pre>
 ## 9      NA     NA      NA        NA
 ## 10     NA     NA      NA        NA
 ## ..    ...    ...     ...       ...</code></pre>
+<pre class="r"><code>select(anno, contains(&quot;1000g&quot;))</code></pre>
+<pre><code>## Source: local data frame [77,702 x 1]
+## 
+##    X1000g2015aug_all
+##                (dbl)
+## 1                 NA
+## 2                 NA
+## 3                 NA
+## 4                 NA
+## 5                 NA
+## 6                 NA
+## 7                 NA
+## 8                 NA
+## 9                 NA
+## 10                NA
+## ..               ...</code></pre>
 <hr />
 <p>Exercise</p>
 <ul>
 <li>Select the columns <code>Func.refGene</code> to <code>AAChange.refGene</code>
 <ul>
-<li>you could try the convenience function <code>contains</code> to do this, or using the <code>:</code> notation</li>
+<li>you could try the convenience functions <code>contains</code> <code>ends_with</code> to do this, or using the <code>:</code> notation</li>
 </ul></li>
 <li>Now remove the column <code>GeneDetail.refGene</code></li>
 <li>Append the chromosome start and end position columns</li>
@@ -458,18 +662,18 @@ anno</code></pre>
 ## 2       1  17222  17222 ncRNA_intronic                 WASH7P
 ## 3       1  74570  74570     intergenic        OR4F5,LOC729737
 ## 4       1 124583 124583     intergenic        OR4F5,LOC729737
-## 5       1 231455 231455     intergenic LOC729737,LOC100132062
-## 6       1 234432 234432     intergenic LOC729737,LOC100132062
-## 7       1 234556 234556     intergenic LOC729737,LOC100132062
-## 8       1 234760 234760     intergenic LOC729737,LOC100132062
-## 9       1 237545 237545     intergenic LOC729737,LOC100132062
-## 10      1 245264 245264     intergenic LOC729737,LOC100132062
+## 5       1 231455 231455     intergenic LOC729737,LOC100133331
+## 6       1 234432 234432     intergenic LOC729737,LOC100133331
+## 7       1 234556 234556     intergenic LOC729737,LOC100133331
+## 8       1 234760 234760     intergenic LOC729737,LOC100133331
+## 9       1 237545 237545     intergenic LOC729737,LOC100133331
+## 10      1 245264 245264     intergenic LOC729737,LOC100133331
 ## ..    ...    ...    ...            ...                    ...
 ## Variables not shown: ExonicFunc.refGene (fctr), AAChange.refGene (fctr)</code></pre>
 <hr />
 <p>We should note at this point, that we have not actually changed the data frame at any point; just created different views of the data.</p>
 <pre class="r"><code>anno</code></pre>
-<pre><code>## Source: local data frame [77,702 x 20]
+<pre><code>## Source: local data frame [77,702 x 24]
 ## 
 ##       Chr  Start    End    Ref    Alt   Func.refGene
 ##    (fctr)  (int)  (int) (fctr) (fctr)         (fctr)
@@ -486,16 +690,17 @@ anno</code></pre>
 ## ..    ...    ...    ...    ...    ...            ...
 ## Variables not shown: Gene.refGene (fctr), GeneDetail.refGene (fctr),
 ##   ExonicFunc.refGene (fctr), AAChange.refGene (fctr), cytoBand (fctr),
-##   gwasCatalog (fctr), snp129 (fctr), X1000g2014oct_eur (dbl),
-##   X1000g2014oct_afr (dbl), CLINSIG (fctr), CLNDBN (fctr), CLNACC (fctr),
-##   CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
+##   gwasCatalog (fctr), genomicSuperDups (fctr), dgvMerged (fctr), snp129
+##   (fctr), X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr),
+##   CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
 </div>
 <div id="mutate" class="section level3">
 <h3>mutate</h3>
 <p>Sometimes we might want to change the data available in the table, either by adding new columns or modifying existing ones. This is supported by the <code>mutate</code> function. We have to specify the column name (which doesn’t already have to exist) and some new values to put in this column. Any valid R function can be used to create values, provided the number of values to try add is the same as the number of rows.</p>
 <p>For example, we might want to change the values stored for <code>Chr</code> so they have the usual prefix.</p>
 <pre class="r"><code>mutate(anno, Chr=paste0(&quot;Chr&quot;, Chr))</code></pre>
-<pre><code>## Source: local data frame [77,702 x 20]
+<pre><code>## Source: local data frame [77,702 x 24]
 ## 
 ##      Chr  Start    End    Ref    Alt   Func.refGene           Gene.refGene
 ##    (chr)  (int)  (int) (fctr) (fctr)         (fctr)                 (fctr)
@@ -503,23 +708,27 @@ anno</code></pre>
 ## 2   Chr1  17222  17222      A      G ncRNA_intronic                 WASH7P
 ## 3   Chr1  74570  74570      T      A     intergenic        OR4F5,LOC729737
 ## 4   Chr1 124583 124583      C      T     intergenic        OR4F5,LOC729737
-## 5   Chr1 231455 231455      T      A     intergenic LOC729737,LOC100132062
-## 6   Chr1 234432 234432      A      G     intergenic LOC729737,LOC100132062
-## 7   Chr1 234556 234556      C      T     intergenic LOC729737,LOC100132062
-## 8   Chr1 234760 234760      A      T     intergenic LOC729737,LOC100132062
-## 9   Chr1 237545 237545      C      A     intergenic LOC729737,LOC100132062
-## 10  Chr1 245264 245264      A      G     intergenic LOC729737,LOC100132062
+## 5   Chr1 231455 231455      T      A     intergenic LOC729737,LOC100133331
+## 6   Chr1 234432 234432      A      G     intergenic LOC729737,LOC100133331
+## 7   Chr1 234556 234556      C      T     intergenic LOC729737,LOC100133331
+## 8   Chr1 234760 234760      A      T     intergenic LOC729737,LOC100133331
+## 9   Chr1 237545 237545      C      A     intergenic LOC729737,LOC100133331
+## 10  Chr1 245264 245264      A      G     intergenic LOC729737,LOC100133331
 ## ..   ...    ...    ...    ...    ...            ...                    ...
 ## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
-##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr), snp129
-##   (fctr), X1000g2014oct_eur (dbl), X1000g2014oct_afr (dbl), CLINSIG
-##   (fctr), CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
 </div>
 <div id="filter" class="section level3">
 <h3>filter</h3>
-<p>A particularly useful operation for us is going to be <code>filter</code>. The syntax is consistent with <code>select</code> and uses the usual selection techniques in R such as <code>==</code></p>
+<p>A particularly useful operation for us is going to be <code>filter</code>. Again, there is nothing here that we couldn’t do with “base R”, but it will allow us to create more readable code.</p>
+<p>The syntax is consistent with <code>select</code> and uses the usual selection techniques in R such as <code>==</code>.</p>
+<p>Selecting variants on chromsome 1</p>
 <pre class="r"><code>filter(anno, Chr ==1)</code></pre>
-<pre><code>## Source: local data frame [5,022 x 20]
+<pre><code>## Source: local data frame [5,022 x 24]
 ## 
 ##       Chr  Start    End    Ref    Alt   Func.refGene
 ##    (fctr)  (int)  (int) (fctr) (fctr)         (fctr)
@@ -536,32 +745,13 @@ anno</code></pre>
 ## ..    ...    ...    ...    ...    ...            ...
 ## Variables not shown: Gene.refGene (fctr), GeneDetail.refGene (fctr),
 ##   ExonicFunc.refGene (fctr), AAChange.refGene (fctr), cytoBand (fctr),
-##   gwasCatalog (fctr), snp129 (fctr), X1000g2014oct_eur (dbl),
-##   X1000g2014oct_afr (dbl), CLINSIG (fctr), CLNDBN (fctr), CLNACC (fctr),
-##   CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
-<pre class="r"><code>filter(anno, X1000g2014oct_eur &lt; 0.05)</code></pre>
-<pre><code>## Source: local data frame [1,082 x 20]
-## 
-##       Chr   Start     End    Ref    Alt   Func.refGene  Gene.refGene
-##    (fctr)   (int)   (int) (fctr) (fctr)         (fctr)        (fctr)
-## 1       1  773919  773919      C      T ncRNA_intronic     LINC01128
-## 2       1  775607  775607      T      G ncRNA_intronic     LINC01128
-## 3       1 1138043 1138043      T      G     downstream      TNFRSF18
-## 4       1 2079577 2079577      A      G       intronic         PRKCZ
-## 5       1 2619317 2619317      A      C       intronic         TTC34
-## 6       1 2619393 2619393      A      G       intronic         TTC34
-## 7       1 2627880 2627880      C      A       intronic         TTC34
-## 8       1 2628225 2628225      T      G       intronic         TTC34
-## 9       1 2629794 2629794      A      G       intronic         TTC34
-## 10      1 3723468 3723468      C      T     intergenic LRRC47,CEP104
-## ..    ...     ...     ...    ...    ...            ...           ...
-## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
-##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr), snp129
-##   (fctr), X1000g2014oct_eur (dbl), X1000g2014oct_afr (dbl), CLINSIG
-##   (fctr), CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
-<p>Again, multiple conditions can be added</p>
-<pre class="r"><code>filter(anno, Chr==1, Func.refGene == &quot;exonic&quot;)</code></pre>
-<pre><code>## Source: local data frame [48 x 20]
+##   gwasCatalog (fctr), genomicSuperDups (fctr), dgvMerged (fctr), snp129
+##   (fctr), X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr),
+##   CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
+<p>Selecting <em>exonic</em> variants</p>
+<pre class="r"><code>filter(anno, Func.refGene == &quot;exonic&quot;)</code></pre>
+<pre><code>## Source: local data frame [561 x 24]
 ## 
 ##       Chr    Start      End    Ref    Alt Func.refGene Gene.refGene
 ##    (fctr)    (int)    (int) (fctr) (fctr)       (fctr)       (fctr)
@@ -577,86 +767,212 @@ anno</code></pre>
 ## 10      1 16899669 16899669      C      T       exonic        NBPF1
 ## ..    ...      ...      ...    ...    ...          ...          ...
 ## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
-##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr), snp129
-##   (fctr), X1000g2014oct_eur (dbl), X1000g2014oct_afr (dbl), CLINSIG
-##   (fctr), CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
-<pre class="r"><code>filter(anno, Func.refGene != &quot;intronic&quot;, Func.refGene != &quot;exonic&quot;)</code></pre>
-<pre><code>## Source: local data frame [60,640 x 20]
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
+<p>Multiple conditions can be separated by a <code>,</code></p>
+<p>“<em>Exonic variants on chromosome 1 that are no synonymous or unknown</em>”</p>
+<pre class="r"><code>filter(anno, Func.refGene == &quot;exonic&quot;, Chr == 1, ExonicFunc.refGene != &quot;synonymous SNV&quot;, ExonicFunc.refGene != &quot;unknown&quot;)</code></pre>
+<pre><code>## Source: local data frame [31 x 24]
 ## 
-##       Chr  Start    End    Ref    Alt   Func.refGene
-##    (fctr)  (int)  (int) (fctr) (fctr)         (fctr)
-## 1       1  10181  10181      A      C     intergenic
-## 2       1  17222  17222      A      G ncRNA_intronic
-## 3       1  74570  74570      T      A     intergenic
-## 4       1 124583 124583      C      T     intergenic
-## 5       1 231455 231455      T      A     intergenic
-## 6       1 234432 234432      A      G     intergenic
-## 7       1 234556 234556      C      T     intergenic
-## 8       1 234760 234760      A      T     intergenic
-## 9       1 237545 237545      C      A     intergenic
-## 10      1 245264 245264      A      G     intergenic
-## ..    ...    ...    ...    ...    ...            ...
+##       Chr     Start       End    Ref    Alt Func.refGene Gene.refGene
+##    (fctr)     (int)     (int) (fctr) (fctr)       (fctr)       (fctr)
+## 1       1   6524705   6524705      C      A       exonic     TNFRSF25
+## 2       1  12939510  12939510      C      T       exonic      PRAMEF4
+## 3       1  12942938  12942938      A      T       exonic      PRAMEF4
+## 4       1  12942941  12942941      T      G       exonic      PRAMEF4
+## 5       1  21807427  21807427      G      T       exonic        NBPF3
+## 6       1  24687508  24687508      G      A       exonic        STPG1
+## 7       1  40535490  40535490      C      G       exonic         CAP1
+## 8       1  93701865  93701865      A      G       exonic       CCDC18
+## 9       1 108298069 108298069      G      A       exonic         VAV3
+## 10      1 144857010 144857010      T      C       exonic      PDE4DIP
+## ..    ...       ...       ...    ...    ...          ...          ...
+## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
+<p>Variants that are found in 1000 genomes</p>
+<pre class="r"><code>filter(anno, is.na(snp129))</code></pre>
+<pre><code>## Source: local data frame [68,721 x 24]
+## 
+##       Chr  Start    End    Ref    Alt Func.refGene
+##    (fctr)  (int)  (int) (fctr) (fctr)       (fctr)
+## 1       1  10181  10181      A      C   intergenic
+## 2       1  74570  74570      T      A   intergenic
+## 3       1 124583 124583      C      T   intergenic
+## 4       1 231455 231455      T      A   intergenic
+## 5       1 234556 234556      C      T   intergenic
+## 6       1 237545 237545      C      A   intergenic
+## 7       1 245264 245264      A      G   intergenic
+## 8       1 258930 258930      C      T   intergenic
+## 9       1 324486 324486      G      C ncRNA_exonic
+## 10      1 544394 544394      A      G   intergenic
+## ..    ...    ...    ...    ...    ...          ...
 ## Variables not shown: Gene.refGene (fctr), GeneDetail.refGene (fctr),
 ##   ExonicFunc.refGene (fctr), AAChange.refGene (fctr), cytoBand (fctr),
-##   gwasCatalog (fctr), snp129 (fctr), X1000g2014oct_eur (dbl),
-##   X1000g2014oct_afr (dbl), CLINSIG (fctr), CLNDBN (fctr), CLNACC (fctr),
-##   CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
-<p>A useful shortcut function is <code>count</code>, which will give a table of how many values are found in a particular column</p>
-<pre class="r"><code>count(anno, Func.refGene)</code></pre>
-<pre><code>## Source: local data frame [13 x 2]
+##   gwasCatalog (fctr), genomicSuperDups (fctr), dgvMerged (fctr), snp129
+##   (fctr), X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr),
+##   CLNDBN (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
+<p>Variants that are found in GWAS</p>
+<pre class="r"><code>filter(anno, !is.na(gwasCatalog))</code></pre>
+<pre><code>## Source: local data frame [2 x 24]
 ## 
-##           Func.refGene     n
-##                 (fctr) (int)
-## 1           downstream   393
-## 2               exonic   559
-## 3      exonic;splicing     4
-## 4           intergenic 54416
-## 5             intronic 16503
-## 6         ncRNA_exonic   509
-## 7       ncRNA_intronic  4539
-## 8       ncRNA_splicing     1
-## 9             splicing     2
-## 10            upstream   478
-## 11 upstream;downstream     9
-## 12                UTR3   236
-## 13                UTR5    53</code></pre>
+##      Chr     Start       End    Ref    Alt   Func.refGene   Gene.refGene
+##   (fctr)     (int)     (int) (fctr) (fctr)         (fctr)         (fctr)
+## 1      1 221010205 221010205      C      T ncRNA_intronic        HLX-AS1
+## 2     14 106232585 106232585      A      G     intergenic ELK2AP,MIR4507
+## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
 <hr />
 <p>Exercise</p>
 <ul>
+<li>Find which variants are present COSMIC database</li>
+<li>Find which variants are not in segmental duplications</li>
 <li>Find all variants that are in TP53 and exonic</li>
-<li>Find all variants that are in TP53, exonic and less than 0.05 maf in european and african 1000 genomes individuals</li>
-<li>Find which variants are present in the GWAS catalog</li>
+<li>Find all variants that are in TP53, exonic and less than 0.05 maf in 1000 genomes individuals and less than 0.05 frequency in the exon sequencing project</li>
 </ul>
 <hr />
 </div>
-<div id="combining-commands-with-pipes" class="section level3">
-<h3>Combining commands with “pipes”</h3>
-<p>piping is a familiar concept in unix where the output of one command is used as input to the following line. The <code>dplyr</code> package allows such operations to be performed in R via use of the <code>%&gt;%</code> operation from the <code>magrittr</code> package</p>
-<p><code>dplyr</code> functions are designed to take a data frame as their first argument, and return a data frame as an output.</p>
-<p>Say we want all exonic variants and then display all the columns that relate to the gene-based annotation</p>
-<pre class="r"><code>filter(anno, Func.refGene==&quot;exonic&quot;) %&gt;% 
-  select(contains(&quot;refGene&quot;))</code></pre>
-<pre><code>## Source: local data frame [559 x 5]
+</div>
+<div id="combining-commands-with-pipes" class="section level2">
+<h2>Combining commands with “pipes”</h2>
+<p>A slighty annoyance with the first exercise above is that once we’ve filtered for COSMIC variants we don’t actually see the COSMIC column appearing in the output:-</p>
+<pre class="r"><code>filter(anno, !is.na(cosmic70))</code></pre>
+<pre><code>## Source: local data frame [85 x 24]
 ## 
-##    Func.refGene Gene.refGene GeneDetail.refGene ExonicFunc.refGene
-##          (fctr)       (fctr)             (fctr)             (fctr)
-## 1        exonic         ESPN                 NA     synonymous SNV
-## 2        exonic     TNFRSF25                 NA           stopgain
-## 3        exonic      PRAMEF4                 NA  nonsynonymous SNV
-## 4        exonic      PRAMEF4                 NA  nonsynonymous SNV
-## 5        exonic      PRAMEF4                 NA  nonsynonymous SNV
-## 6        exonic        NBPF1                 NA            unknown
-## 7        exonic        NBPF1                 NA            unknown
-## 8        exonic        NBPF1                 NA            unknown
-## 9        exonic        NBPF1                 NA            unknown
-## 10       exonic        NBPF1                 NA            unknown
-## ..          ...          ...                ...                ...
-## Variables not shown: AAChange.refGene (fctr)</code></pre>
+##       Chr     Start       End    Ref    Alt Func.refGene Gene.refGene
+##    (fctr)     (int)     (int) (fctr) (fctr)       (fctr)       (fctr)
+## 1       1   4800099   4800099      G      A     intronic        AJAP1
+## 2       1   6512048   6512048      C      T       exonic         ESPN
+## 3       1   6524705   6524705      C      A       exonic     TNFRSF25
+## 4       1  24687508  24687508      G      A       exonic        STPG1
+## 5       1  93701865  93701865      A      G       exonic       CCDC18
+## 6       1 108298069 108298069      G      A       exonic         VAV3
+## 7       1 147380295 147380295      C      T       exonic         GJA8
+## 8       1 159558247 159558247      G      A       exonic         APCS
+## 9       1 176811562 176811562      G      T       exonic       PAPPA2
+## 10      1 178414751 178414751      G      C       exonic       RASAL2
+## ..    ...       ...       ...    ...    ...          ...          ...
+## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
+<p>Given what we have done so far, it would seem natural to follow this <code>filter</code> statement with a <code>select</code> to view the columns we are interested in</p>
+<p>It is quite common to nest commands in R into a single line</p>
+<pre class="r"><code>anno &lt;- tbl_df(read.csv(&quot;myanno.hg19_multianno.csv&quot;))</code></pre>
+<p>which we read as</p>
+<blockquote>
+<p>apply the function <code>tbl_df</code> to the result of reading the file myanno.hg19_multianno.csv</p>
+</blockquote>
+<p>The following line of R code is perfectly valid and does exactly what we want. However, reading the code back to ourselves is a bit clunky.</p>
+<pre class="r"><code>select(filter(anno, !is.na(cosmic70)), Chr:Alt, cosmic70)</code></pre>
+<pre><code>## Source: local data frame [85 x 6]
+## 
+##       Chr     Start       End    Ref    Alt
+##    (fctr)     (int)     (int) (fctr) (fctr)
+## 1       1   4800099   4800099      G      A
+## 2       1   6512048   6512048      C      T
+## 3       1   6524705   6524705      C      A
+## 4       1  24687508  24687508      G      A
+## 5       1  93701865  93701865      A      G
+## 6       1 108298069 108298069      G      A
+## 7       1 147380295 147380295      C      T
+## 8       1 159558247 159558247      G      A
+## 9       1 176811562 176811562      G      T
+## 10      1 178414751 178414751      G      C
+## ..    ...       ...       ...    ...    ...
+## Variables not shown: cosmic70 (fctr)</code></pre>
+<blockquote>
+<p>select from the result of filter COSMIC variants, the columns Chr to Alt and cosmic70</p>
+</blockquote>
+<p>or we can split over multiple lines</p>
+<pre class="r"><code>select(filter(anno, !is.na(cosmic70)),
+       Chr:Alt, cosmic70)</code></pre>
+<pre><code>## Source: local data frame [85 x 6]
+## 
+##       Chr     Start       End    Ref    Alt
+##    (fctr)     (int)     (int) (fctr) (fctr)
+## 1       1   4800099   4800099      G      A
+## 2       1   6512048   6512048      C      T
+## 3       1   6524705   6524705      C      A
+## 4       1  24687508  24687508      G      A
+## 5       1  93701865  93701865      A      G
+## 6       1 108298069 108298069      G      A
+## 7       1 147380295 147380295      C      T
+## 8       1 159558247 159558247      G      A
+## 9       1 176811562 176811562      G      T
+## 10      1 178414751 178414751      G      C
+## ..    ...       ...       ...    ...    ...
+## Variables not shown: cosmic70 (fctr)</code></pre>
+<p>We always have to work out what the first statement was, and work forwards from that. - the arguments to a function are far-away from the function call</p>
+<p><strong><em>piping</em></strong> is a familiar concept in unix where the output of one command is used as input to the following line. The <code>dplyr</code> package allows such operations to be performed in R via use of the <code>%&gt;%</code> operation from the <code>magrittr</code> package</p>
+<ul>
+<li>Shortcut in RStudio: CTRL + SHIFT + M, CMD + SHIFT + M (Mac)</li>
+</ul>
+<p><code>dplyr</code> functions are designed to take a data frame as their first argument, and return a data frame as an output. This makes them ideal to use with a pipe.</p>
+<p>The code from before can be rewritten as follows, making it easier to see the order in which the operations were performed.</p>
+<pre class="r"><code>filter(anno, !is.na(cosmic70)) %&gt;% 
+  select(Chr:Alt, cosmic70)</code></pre>
+<pre><code>## Source: local data frame [85 x 6]
+## 
+##       Chr     Start       End    Ref    Alt
+##    (fctr)     (int)     (int) (fctr) (fctr)
+## 1       1   4800099   4800099      G      A
+## 2       1   6512048   6512048      C      T
+## 3       1   6524705   6524705      C      A
+## 4       1  24687508  24687508      G      A
+## 5       1  93701865  93701865      A      G
+## 6       1 108298069 108298069      G      A
+## 7       1 147380295 147380295      C      T
+## 8       1 159558247 159558247      G      A
+## 9       1 176811562 176811562      G      T
+## 10      1 178414751 178414751      G      C
+## ..    ...       ...       ...    ...    ...
+## Variables not shown: cosmic70 (fctr)</code></pre>
+<hr />
+<p>Exercise</p>
+<ul>
+<li>Explain in words what the following chain of commands is doing</li>
+</ul>
+<pre class="r"><code>filter(anno, Func.refGene==&quot;exonic&quot;) %&gt;% 
+  filter(!is.na(genomicSuperDups)) %&gt;% 
+  filter(is.na(snp129)) %&gt;% 
+  filter(X1000g2015aug_all &lt; 0.05) %&gt;% 
+  select(Chr:ExonicFunc.refGene,-GeneDetail.refGene,-Func.refGene,X1000g2015aug_all)</code></pre>
+<pre><code>## Source: local data frame [23 x 8]
+## 
+##       Chr     Start       End    Ref    Alt Gene.refGene
+##    (fctr)     (int)     (int) (fctr) (fctr)       (fctr)
+## 1       1  12942938  12942938      A      T      PRAMEF4
+## 2       1  12942941  12942941      T      G      PRAMEF4
+## 3       1  16890558  16890558      C      G        NBPF1
+## 4       1  16890559  16890559      A      G        NBPF1
+## 5      11   1265963   1265963      C      T        MUC5B
+## 6      11   1269707   1269707      C      T        MUC5B
+## 7      15  75982312  75982312      C      T        CSPG4
+## 8      21  11098709  11098709      A      G  BAGE2,BAGE3
+## 9      21  46047670  46047670      A      G    KRTAP10-9
+## 10      3 195505988 195505988      A      T         MUC4
+## ..    ...       ...       ...    ...    ...          ...
+## Variables not shown: ExonicFunc.refGene (fctr), X1000g2015aug_all (dbl)</code></pre>
 <hr />
 <p>Exercise</p>
 <ul>
 <li>Find which variants are present in the GWAS catalog</li>
 <li>Print the chromsome, start, end, and Gene name for these variants</li>
+<li>Use a “pipe” command to write your answer</li>
 </ul>
 <pre class="r"><code>filter(anno, !is.na(gwasCatalog)) %&gt;% 
   select(Chr:End, Gene.refGene, gwasCatalog)</code></pre>
@@ -667,66 +983,66 @@ anno</code></pre>
 ## 1      1 221010205 221010205        HLX-AS1 Name=F-cell distribution
 ## 2     14 106232585 106232585 ELK2AP,MIR4507          Name=IgG levels</code></pre>
 <hr />
-</div>
 <div id="arrange" class="section level3">
 <h3>arrange</h3>
 <p>The <code>arrange</code> function can be used to order rows. For example ordering according to 1000 genomes frequency</p>
-<pre class="r"><code>arrange(anno, X1000g2014oct_eur)</code></pre>
-<pre><code>## Source: local data frame [77,702 x 20]
+<pre class="r"><code>arrange(anno, X1000g2015aug_all)</code></pre>
+<pre><code>## Source: local data frame [77,702 x 24]
 ## 
-##       Chr     Start       End    Ref    Alt   Func.refGene
-##    (fctr)     (int)     (int) (fctr) (fctr)         (fctr)
-## 1       1    775607    775607      T      G ncRNA_intronic
-## 2       1   2079577   2079577      A      G       intronic
-## 3       1   2627880   2627880      C      A       intronic
-## 4       1   2628225   2628225      T      G       intronic
-## 5       1  16932042  16932042      A      G       intronic
-## 6       1  18129033  18129033      C      T       intronic
-## 7       1 118824216 118824216      C      A     intergenic
-## 8       1 142541407 142541407      G      A     intergenic
-## 9       1 142541412 142541412      G      A     intergenic
-## 10      1 143523388 143523388      C      T     intergenic
-## ..    ...       ...       ...    ...    ...            ...
-## Variables not shown: Gene.refGene (fctr), GeneDetail.refGene (fctr),
-##   ExonicFunc.refGene (fctr), AAChange.refGene (fctr), cytoBand (fctr),
-##   gwasCatalog (fctr), snp129 (fctr), X1000g2014oct_eur (dbl),
-##   X1000g2014oct_afr (dbl), CLINSIG (fctr), CLNDBN (fctr), CLNACC (fctr),
-##   CLNDSDB (fctr), CLNDSDBID (fctr)</code></pre>
+##       Chr    Start      End    Ref    Alt Func.refGene    Gene.refGene
+##    (fctr)    (int)    (int) (fctr) (fctr)       (fctr)          (fctr)
+## 1       1  2621049  2621049      C      A     intronic           TTC34
+## 2       1  2626305  2626305      C      A     intronic           TTC34
+## 3       1  2627880  2627880      C      A     intronic           TTC34
+## 4       1  5179714  5179714      C      T   intergenic   AJAP1,MIR4417
+## 5       1 14378259 14378259      C      T   intergenic      PRDM2,KAZN
+## 6       1 16833455 16833455      T      A   intergenic CROCCP3,FAM231B
+## 7       1 16855091 16855091      G      C   intergenic CROCCP3,FAM231B
+## 8       1 17228449 17228449      C      T   intergenic   MIR3675,CROCC
+## 9       1 17615546 17615546      C      T   intergenic     PADI3,PADI4
+## 10      1 32505422 32505422      G      T     intronic         KHDRBS1
+## ..    ...      ...      ...    ...    ...          ...             ...
+## Variables not shown: GeneDetail.refGene (fctr), ExonicFunc.refGene (fctr),
+##   AAChange.refGene (fctr), cytoBand (fctr), gwasCatalog (fctr),
+##   genomicSuperDups (fctr), dgvMerged (fctr), snp129 (fctr),
+##   X1000g2015aug_all (dbl), esp6500si_all (dbl), CLINSIG (fctr), CLNDBN
+##   (fctr), CLNACC (fctr), CLNDSDB (fctr), CLNDSDBID (fctr), cosmic70
+##   (fctr), nci60 (dbl)</code></pre>
 <p>However, we can’t actually see the column, so using a <code>select</code> statement afterwards seems a good idea</p>
-<pre class="r"><code>  arrange(anno, X1000g2014oct_eur) %&gt;% 
-  select(Chr:End, X1000g2014oct_eur)</code></pre>
+<pre class="r"><code>  arrange(anno, X1000g2015aug_all) %&gt;% 
+  select(Chr:End, X1000g2015aug_all)</code></pre>
 <pre><code>## Source: local data frame [77,702 x 4]
 ## 
-##       Chr     Start       End X1000g2014oct_eur
-##    (fctr)     (int)     (int)             (dbl)
-## 1       1    775607    775607             0.001
-## 2       1   2079577   2079577             0.001
-## 3       1   2627880   2627880             0.001
-## 4       1   2628225   2628225             0.001
-## 5       1  16932042  16932042             0.001
-## 6       1  18129033  18129033             0.001
-## 7       1 118824216 118824216             0.001
-## 8       1 142541407 142541407             0.001
-## 9       1 142541412 142541412             0.001
-## 10      1 143523388 143523388             0.001
-## ..    ...       ...       ...               ...</code></pre>
+##       Chr    Start      End X1000g2015aug_all
+##    (fctr)    (int)    (int)             (dbl)
+## 1       1  2621049  2621049       0.000199681
+## 2       1  2626305  2626305       0.000199681
+## 3       1  2627880  2627880       0.000199681
+## 4       1  5179714  5179714       0.000199681
+## 5       1 14378259 14378259       0.000199681
+## 6       1 16833455 16833455       0.000199681
+## 7       1 16855091 16855091       0.000199681
+## 8       1 17228449 17228449       0.000199681
+## 9       1 17615546 17615546       0.000199681
+## 10      1 32505422 32505422       0.000199681
+## ..    ...      ...      ...               ...</code></pre>
 <p>We can use the convenient function <code>desc</code> to switch to descending order</p>
-<pre class="r"><code>  arrange(anno, desc(X1000g2014oct_eur)) %&gt;% 
-  select(Chr:End, X1000g2014oct_eur)</code></pre>
+<pre class="r"><code>  arrange(anno, desc(X1000g2015aug_all)) %&gt;% 
+  select(Chr:End, X1000g2015aug_all)</code></pre>
 <pre><code>## Source: local data frame [77,702 x 4]
 ## 
-##       Chr     Start       End X1000g2014oct_eur
+##       Chr     Start       End X1000g2015aug_all
 ##    (fctr)     (int)     (int)             (dbl)
-## 1       5   7294247   7294247            1.0000
-## 2      10  64071048  64071048            0.9970
-## 3       9  12036767  12036767            0.9901
-## 4      11  70281359  70281359            0.9881
-## 5      16  27036196  27036196            0.9811
-## 6       2  24567902  24567902            0.9811
-## 7       2  24587426  24587426            0.9811
-## 8       2  24587425  24587425            0.9781
-## 9      17  69452010  69452010            0.9751
-## 10      6 164963595 164963595            0.9742
+## 1       5   7294247   7294247          0.999002
+## 2      11  70281359  70281359          0.992013
+## 3       X 149920382 149920382          0.988874
+## 4      22  36191675  36191675          0.978834
+## 5       2  24567902  24567902          0.971246
+## 6       2  24587426  24587426          0.971046
+## 7       2  24587425  24587425          0.969449
+## 8      16  27036196  27036196          0.960064
+## 9      10  64071048  64071048          0.958666
+## 10     12  93236402  93236402          0.954473
 ## ..    ...       ...       ...               ...</code></pre>
 <hr />
 <p>Exercise</p>
@@ -734,11 +1050,11 @@ anno</code></pre>
 <li>Which genes have the greatest number of exonic variants?</li>
 </ul>
 <hr />
-<pre><code>## Source: local data frame [258 x 2]
+<pre><code>## Source: local data frame [257 x 2]
 ## 
 ##    Gene.refGene     n
 ##          (fctr) (int)
-## 1          MUC4    91
+## 1          MUC4    93
 ## 2          MUC6    31
 ## 3         MUC19    23
 ## 4          MUC2    12
@@ -754,7 +1070,7 @@ anno</code></pre>
 </div>
 <div id="using-annovar-to-make-prediction" class="section level1">
 <h1>Using annovar to make prediction</h1>
-<pre><code>../software/annovar/table_annovar.pl HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../ref_data/annovar/humandb/ -buildver hg19 -out myanno.pred -remove -protocol dbnsfp30a -operation f -nastring NA -csvout</code></pre>
+<pre><code>../software/annovar/table_annovar.pl HCC1143_vs_HCC1143_BL.flagged.muts.avinput ../software/annovar/humandb/ -buildver hg19 -out myanno.pred -remove -protocol dbnsfp30a -operation f -nastring NA -csvout</code></pre>
 <pre class="r"><code>preds &lt;- read.csv(&quot;myanno.pred.hg19_multianno.csv&quot;) %&gt;% 
   tbl_df
 
