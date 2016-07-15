@@ -12,12 +12,6 @@ cd data/cell-line/
 ./download.sh
 cd ../../
 
-## Get example bam and fastq files for Day 1
-
-chmod +x Day1/data_for_day1.sh
-cd Day1
-./data_for_day1.sh
-cd ../
 
 ## 
 
@@ -32,3 +26,4 @@ cd ../
 ## chmod +x annovar_commands.sh
 ## ./annovar_commands.sh
 ## 
+
