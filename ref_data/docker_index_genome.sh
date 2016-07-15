@@ -1,3 +1,3 @@
 ### run this script in the docker image
 
-bwa index -a bwtsw -p hg19 human_g1k_v37.fasta
+bwa index -a bwtsw -p hg19 Homo_sapiens_assembly19.fasta

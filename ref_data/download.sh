@@ -1,3 +1,3 @@
-wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz
-wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai
-gunzip human_g1k_v37.fasta.gz 
+wget http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta
+wget http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta.fai
+wget http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.dict
