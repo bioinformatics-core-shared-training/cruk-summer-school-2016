@@ -117,7 +117,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Understanding Sequencing Reads</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>Last modified: 07 Jul 2016</em></h4>
+<h4 class="date"><em>Last modified: 16 Jul 2016</em></h4>
 
 </div>
 
@@ -125,12 +125,16 @@ $(document).ready(function () {
 <div id="fastqc-primer-and-trimming-reads" class="section level1">
 <h1><a name="fastqc"></a> Fastqc Primer and trimming reads</h1>
 <p><em>(Acknowledgement to Ines De Santiago for her session at the <a href="http://bioinformatics-core-shared-training.github.io/cruk-bioinf-sschool/Day1/NGS_QC_inesdesantiago.pdf">previous summer school</a>)</em></p>
+<div id="working-directory" class="section level2">
+<h2>Working directory</h2>
+<pre><code>/home/participant/Course_Materials/Day1/</code></pre>
 <p><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a> from Babraham Bioinformatics Core has emerged as the standard tool for performing quality assessment on sequencing reads</p>
 <p>It can be run from the <strong><em>Terminal</em></strong> as follows;</p>
 <pre><code>fastqc sample.fq1</code></pre>
 <p>As a result, you should get two files in your working directory; <code>sample.fq1_fastqc.zip</code> and <code>sample.fq1_fastqc.html</code>. The <code>.zip</code> file contains all the metrics that <code>fastqc</code> computes, should you wish to perform extra manipulation and visualisation beyond what <code>fastqc</code> offers. The <code>html</code> file can be opened in a web browser. The easier way to see the output is to navigate to the current directory using a file explorer, and double-click on the file.</p>
 <p>The manual for <code>fastqc</code> is available <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/">online</a> and is very comprehensive; especially the parts which describe particular <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/">sections</a> of the report. The authors also run a <a href="https://sequencing.qcfail.com/">“QCfail”</a> blog which discusses some sequencing QC errors they have encountered and how they were diagnosed.</p>
 <p>A <em>“traffic light”</em> system is used to draw your attention to sections of the report that require further investigation. However, it is worth bearing in mind that <code>fastqc</code> is designed to be run on fastq files from any type of sequencing experiment and has no knowledge of the particular library preparation, or conditions that you are studying. It could be that you <em>expect</em> high levels of duplication or GC content. Always consider the nature of your study before taking any drastic action!</p>
+</div>
 <div id="the-sections-of-a-fastqc-report" class="section level2">
 <h2>The sections of a <code>fastqc</code> report</h2>
 <ol style="list-style-type: decimal">
@@ -261,20 +265,30 @@ $(document).ready(function () {
 </div>
 <p>Described in detail in <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2896536/">Hansen et al. (2010)</a></p>
 <hr />
+<hr />
+<hr />
 <div id="exercise" class="section level3">
 <h3>Exercise</h3>
 <ul>
-<li>View the <code>fastqc</code> report for our example <code>.fq</code> file
+<li>View the <code>fastqc</code> report for our example file <code>sample.fq1</code>
 <ul>
-<li>see the start of this section for how to run the tool</li>
+<li>see the start of this section for how to run the <code>fastqc</code> tool</li>
 </ul></li>
 <li>Are there any areas of concern?</li>
 </ul>
 <hr />
+<hr />
+<hr />
+</div>
+</div>
+</div>
+<div id="optional-advanced-section" class="section level1">
+<h1>Optional / advanced section</h1>
+<p><em>If time allows, we will cover how to trim our data</em></p>
 <p>Based on these plots we may want to <em>trim</em> our data; <em>fastqc will not do this for us</em>.</p>
 <p>Popular choices are <a href="http://hannonlab.cshl.edu/fastx_toolkit/">fastx_toolit</a>, <a href="http://www.usadellab.org/cms/index.php?page=trimmomatic">trimmomatic</a> and <a href="http://cutadapt.readthedocs.io/en/stable/index.html">cutadapt</a>; all of which should be installed on your computers. As implied by the name, <code>cutadapt</code> is useful for removing adaptor sequences.</p>
 <p><code>fastx_toolkit</code> allows us to remove reads that do not have a high enough proportion of high-quality reads.</p>
-<pre><code>fastq_quality_filter -v Q 33 -q 20 -p 75 -i Day1/sample.fq1 -o Day1/sample_filtered.fq</code></pre>
+<pre><code>fastq_quality_filter -v Q 33 -q 20 -p 75 -i sample.fq1 -o sample_filtered.fq</code></pre>
 <p>the options were used:-</p>
 <pre><code>-i: input file
 -o: output file
@@ -289,7 +303,7 @@ Input: 6290535 reads.
 Output: 5399767 reads.
 discarded 890768 (14%) low-quality reads.</code></pre>
 <p>It can also do straightforward trimming to a particular read length</p>
-<pre><code>fastx_trimmer -v -f 1 -l 60 -i Day1/sample.fq1 -o Day1/sample.fastx.trimmed.fq1</code></pre>
+<pre><code>fastx_trimmer -v -f 1 -l 60 -i Day1/sample.fq1 -o sample.fastx.trimmed.fq1</code></pre>
 <p>the options specified were:-</p>
 <pre><code>-f: first base to keep
 -l: last base to keep
@@ -298,7 +312,7 @@ discarded 890768 (14%) low-quality reads.</code></pre>
 -v: report number of sequences</code></pre>
 <p>Trimmomatic is interesting as it allows for differently-sized reads.</p>
 <p>To use <code>trimmomatic</code> we can run the following in a Terminal. Here <code>$TRIMMOMATIC</code> is used to refer to the particular location that the tool has been installed to.</p>
-<pre><code>java -jar $TRIMMOMATIC SE -phred33 Day1/sample.fq1 Day1/sample.trimmed.fq1 TRAILING:3 MINLEN:30</code></pre>
+<pre><code>java -jar $TRIMMOMATIC SE -phred33 sample.fq1 sample.trimmed.fq1 TRAILING:3 MINLEN:30</code></pre>
 <pre><code>SE: run single-end mode
 -phred33: use the offset of 33 to interpret quality scores
 TRAILING:3 cut bases from the end of the read if below 3</code></pre>
@@ -338,7 +352,6 @@ myquals[old.ids %in% missing.ids]</code></pre>
 ## [319212]    68 #############################...############################
 ## [319213]    68 #############################...############################</code></pre>
 <hr />
-</div>
 <div id="exercise-1" class="section level3">
 <h3>Exercise</h3>
 <ul>
@@ -348,7 +361,6 @@ myquals[old.ids %in% missing.ids]</code></pre>
 fastqc sample.fastx.trimmed.fq1
 fastqc sample.filtered.fq1</code></pre>
 <hr />
-</div>
 </div>
 </div>
 <div id="alignment" class="section level1">
@@ -369,21 +381,22 @@ fastqc sample.filtered.fq1</code></pre>
 </ul>
 <p>For completeness, we will show the commands used to aligned these two example fastq files.</p>
 <p>We have previously downloaded a reference genome from the 1000 genomes into a directory <code>raw_data</code></p>
-<pre><code>wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz -P ref_data/
+<pre><code>wget http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta -P ../ref_data/
+cd ../ref_data
 gunzip ref_data/human_g1k_v37.fasta.gz</code></pre>
 <p><code>bwa</code> can <em>index</em> the unzipped <code>.fasta</code> file. The option <code>-p</code> allows us how we want to prefix all the files that the indexing procedure creates. <strong><em>[N.B this step will take a long time]</em></strong></p>
-<pre><code>bwa index -p hg19 -a bwtsw ref_data/human_g1k_v37.fasta</code></pre>
+<pre><code>bwa index -p hg19 -a bwtsw Homo_sapiens_assembly19.fasta</code></pre>
 <p>Here’s one we made earlier!</p>
-<pre><code>ls -l ref_data/</code></pre>
+<pre><code>ls -l ../ref_data/</code></pre>
 <p>The command to perform the alignment is <code>bwa aln</code> which has many options. We are going to stick with the default.</p>
 <pre><code>bwa aln</code></pre>
 <p>Each <code>.fastq</code> file needs to be aligned separately. The output from this step is in a binary format that we cannot interpret directly.</p>
-<pre><code>bwa aln ref_data/hg19 Day1/sample.fq1 &gt; sample_1.sai
+<pre><code>bwa aln ../ref_data/hg19 sample.fq1 &gt; sample_1.sai
 
-bwa aln ref_data/hg19 Day1/sample.fq2 &gt; sample_2.sai
+bwa aln ../ref_data/hg19 sample.fq2 &gt; sample_2.sai
 </code></pre>
 <p>We need to make use of the <code>bwa sampe</code> command to create a human-readable format. We give it the files from the previous step and the fastq files.</p>
-<pre><code>bwa sampe ../ref_data/human_g1k_v37.fasta sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam </code></pre>
+<pre><code>bwa sampe ../ref_data/Homo_sapiens_assembly19.fasta sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam </code></pre>
 <p>The output is a <code>.sam</code> file that will be described in the next section</p>
 </div>
 <div id="appendix" class="section level1">
