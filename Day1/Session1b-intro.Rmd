@@ -10,7 +10,7 @@ output: html_document
 
 ## Advantages of R
 
-![NYT](../images/NYTimes_R_Article.png)
+![](../images/NYTimes_R_Article.png)
 
 The R programming language is now recognised beyond the academic community as an effect solution for data analysis and visualisation. [Notable users of R](http://www.revolutionanalytics.com/companies-using-r) include [Facebook](http://blog.revolutionanalytics.com/2010/12/analysis-of-facebook-status-updates.html), [google](http://blog.revolutionanalytics.com/2009/05/google-using-r-to-analyze-effectiveness-of-tv-ads.html), [Microsoft](http://blog.revolutionanalytics.com/2014/05/microsoft-uses-r-for-xbox-matchmaking.html) (who recently [invested](http://blogs.microsoft.com/blog/2015/01/23/microsoft-acquire-revolution-analytics-help-customers-find-big-data-value-advanced-statistical-analysis/) in a commerical provider of R), and the [New York Times](http://blog.revolutionanalytics.com/2011/03/how-the-new-york-times-uses-r-for-data-visualization.html).
 
@@ -35,7 +35,7 @@ The R programming language is now recognised beyond the academic community as an
 
 
 
-![BioC](../images/logo_bioconductor.png)
+![](../images/logo_bioconductor.png)
 
 -  Packages analyse all kinds of Genomic data (>800)
 - Compulsory documentation (*vignettes*) for each package
@@ -53,7 +53,7 @@ The R programming language is now recognised beyond the academic community as an
     
 Many of the packages are by well-respected authors and get lots of citations.
 
-![citations](../images/citations.png)
+![](../images/citations.png)
 
 ##Downloading a package
 
@@ -76,7 +76,7 @@ Aside from teaching you about NGS analysis, we also hope to teach you how to wor
 
 Open the file `session2-template.Rmd` in Rstudio now.....
 
-![markdown](../images/markdown-annotated.png)
+![](../images/markdown-annotated.png)
 
 1. Header information
 2. Section heading
@@ -99,7 +99,7 @@ Each line of R code can be executed in the R console by placing the cursor on th
 
 ## RStudio
 
-![RStudio](http://www.rstudio.com/wp-content/uploads/2014/03/blue-125.png)
+![](http://www.rstudio.com/wp-content/uploads/2014/03/blue-125.png)
 
 - Rstudio is a free environment for R
 - Convenient menus to access scripts, display plots
@@ -199,28 +199,40 @@ In Rstudio , you can view the contents of this data frame in a tab.
 View(patients)
 ```
 
-
+******
+******
 ******
 
-## Q. What are the dimensions of the data frame?
+### Exercise
 
-## Q. What columns are available?
+- What are the dimensions of the data frame?
 
-*** HINT: see the `dim`, `ncol`, `nrow` and `colnames` functions
+- What columns are available?
+  + HINT: see the `dim`, `ncol`, `nrow` and `colnames` functions
  
 ******
-
+******
+******
 
 ```{r echo=FALSE}
 dim(patients)
 colnames(patients)
 ```
 
-******
-## Q. Can you think of two ways to access the Names of the patients?
-## Q. What type of object is returned?
 
 ******
+******
+******
+
+### Exercise
+
+- Can you think of two ways to access the Names of the patients?
+- What type of object is returned?
+
+******
+******
+******
+
 ```{r echo=FALSE}
 patients$Name
 patients[,2]
@@ -254,20 +266,21 @@ The `summary` function is a useful way of summarising the data containing in eac
 summary(patients)
 ```
 
-******
-## Q. Can you identify
-### which columns contain numerical data?
-### which columns contain categorical data?
-### which columns contain logical (`TRUE` or `FALSE`) values?
-    
-******
 
 ## Subsetting
 
 A data frame can be subset using square brackes`[]` placed after the name of the data frame. As a data frame is a two-dimensional object, you need a *row* and *column* index, or vector indices. 
 
 ******
-## Q. Make sure you can understand the behaviour of the following commands
+******
+******
+
+### Exercise
+
+- Make sure you can understand the behaviour of the following commands
+
+******
+******
 ******
 
 ```{r eval=FALSE}
@@ -288,24 +301,39 @@ patients
 Should we wish to see all rows, or all columns, we can neglect either the row or column index
 
 ******
-## Q. Make sure you can understand the behaviour of the following commands
+******
 ******
 
+### Exercise
 
-```{r}
+- Make sure you can understand the behaviour of the following commands
+
+```{r eval=FALSE}
 patients[1,]
 patients[,1]
 patients[,c(1,2)]
 ```
 
 
+******
+******
+******
+
+
+
 
 ******
-## Q. How can we view all information about the first six patients?
+******
+******
 
-*** HINT `head` is commonly-used to give a snapshot of a data frame.
+### Exercise
+
+- How can we view all information about the first six patients?
+   + HINT `head` is commonly-used to give a snapshot of a data frame.
 Otherwise, you can use the `[row,column]` notation.
 
+******
+******
 ******
 
 ```{r echo=FALSE}
@@ -348,15 +376,24 @@ patients[patients$Race == "White",]
 
 
 ******
-## Q. Can you create a data frame of dog owners?
-
+******
 ******
 
+### Exercise
+
+- Can you create a data frame of dog owners?
 
 ```{r echo=FALSE}
 dog_owners <- patients[patients$Pet == "Dog",]
 dog_owners
 ```
+
+******
+******
+******
+
+
+
 
 There are a couple of ways of testing for more than one text value. The first uses an *or* `|` statement. i.e. testing if the value of `Pet` is `Dog` *or* the value is `Cat`.
 
@@ -376,13 +413,22 @@ patients[patients$Race == "White" & patients$Sex =="Male",]
 
 
 ******
-## Q. Can you create a data frame of deceased patients with a 'count' < 0
-
 ******
+******
+
+### Exercise
+
+- Can you create a data frame of deceased patients with a 'count' < 0
 
 ```{r echo=FALSE}
 patients[patients$Count <0 & patients$Died,]
 ```
+
+
+******
+******
+******
+
 
 ## Ordering and sorting
 
