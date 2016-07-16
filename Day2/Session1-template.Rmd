@@ -1,0 +1,240 @@
+---
+title: "Working with VCF files"
+author: "Your Name"
+date: "16 July 2016"
+output: html_document
+---
+
+## Importing vcf files into Bioconductor
+
+```{r}
+library(VariantAnnotation)
+hapmap.calls <- readVcf("combined.chr20.subset.freebayes.vcf","hg19")
+hapmap.calls
+```
+
+```{r}
+header(hapmap.calls)
+info(header(hapmap.calls))
+geno(header(hapmap.calls))
+```
+
+```{r}
+info(hapmap.calls)
+```
+
+```{r}
+summary(info(hapmap.calls)$NS)
+```
+
+```{r}
+infoMat <- info(hapmap.calls)
+infoMat[info(hapmap.calls)$NS==1,]
+```
+
+```{r}
+hist(infoMat$DP)
+table(infoMat$DP)
+```
+
+```{r}
+infoMat$TYPE
+```
+
+
+```{r}
+numVars <- unlist(lapply(infoMat$TYPE,length))
+table(numVars)
+```
+
+```{r}
+infoMat[numVars>1,]
+```
+
+## Accessing genotypes
+
+
+```{r}
+geno(hapmap.calls)
+head(geno(hapmap.calls)$GT)
+```
+
+```{r}
+table(geno(hapmap.calls)$GT[,1])
+table(geno(hapmap.calls)$GT[,2])
+table(geno(hapmap.calls)$GT[,1], geno(hapmap.calls)$GT[,2])
+```
+
+```{r}
+called.NA12878 <- geno(hapmap.calls)$GT[,1] != "0/0"
+called.NA12873 <- geno(hapmap.calls)$GT[,2] != "0/0"
+called.NA12874 <- geno(hapmap.calls)$GT[,3] != "0/0"
+
+called <- data.frame(called.NA12878, called.NA12873,called.NA12874)
+head(called)
+head(geno(hapmap.calls)$GT)
+```
+
+
+```{r}
+limma::vennDiagram(called)
+```
+
+```{r}
+all.hom <- which(geno(hapmap.calls)$GT[,1]=="1/1" & geno(hapmap.calls)$GT[,2]=="1/1" & geno(hapmap.calls)$GT[,3]=="1/1")
+hapmap.calls.homs <- hapmap.calls[all.hom]
+```
+
+
+```{r}
+writeVcf(hapmap.calls.homs, filename = "hapmap.common.hom.vcf")
+```
+
+******
+******
+******
+
+### Exercise
+
+Find all the positions that were called as heterozyous in all samples
+
+  - Create a new vcf object; say `hapmap.calls.hets`
+  - Now remove all variants with a depth less than 20
+  - Write the remaining variants as a vcf file
+  
+******
+******
+******
+
+```{r}
+
+```
+
+
+## Variant Locations
+
+```{r}
+NA12878.calls <- readVcf("NA12878.chr20.freebayes.vcf","hg19")
+seqlevelsStyle(NA12878.calls) <- "UCSC"
+NA12878.calls <- keepSeqlevels(NA12878.calls, "chr20")
+```
+
+```{r}
+NA12878.calls.ranges <- rowRanges(NA12878.calls)
+NA12878.calls.ranges 
+```
+
+## Overlapping with gene
+
+```{r message=FALSE}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+```
+
+
+******
+******
+******
+
+### Exercise
+
+Find all `NA12878` variants that have been called within the gene "PRND"
+
+- this gene has an Entrez ID of "23627"
+- HINT: recall the `exonsBy` function from yesterday....
+- check your answer in IGV
+
+******
+******
+******
+
+```{r}
+
+```
+
+
+```{r}
+locs <- locateVariants(NA12878.calls.ranges, txdb, CodingVariants())
+locs
+```
+
+```{r}
+library(org.Hs.eg.db)
+symbol <- select(org.Hs.eg.db, keys=mcols(locs)$GENEID, keytype = "ENTREZID", columns="SYMBOL")
+head(symbol)
+mcols(locs)$SYMBOL <- symbol[,2]
+locs
+```
+
+```{r}
+all.locs <- locateVariants(NA12878.calls.ranges, txdb, AllVariants())
+all.locs
+table(all.locs$LOCATION)
+```
+
+```{r}
+locs.df <- as.data.frame(locs)
+dim(locs.df)
+meta <- mcols(NA12878.calls.ranges)
+head(meta)
+dim(meta)
+info.df <- info(NA12878.calls)
+dim(info.df)
+```
+
+```{r}
+locs.df[1:5,]
+locs.df$QUERYID[1:5]
+NA12878.calls.ranges[locs.df$QUERYID[1:5],]
+```
+
+
+******
+******
+******
+
+### Exercise
+
+Construct a data frame containing:-
+
+- The `locs.df` data frame with details of all the coding variants
+- The metadata from the ranges object in the `meta` data frame
+- `INFO` columns `DP`, `NS`, `RO` and `AO` from `info.df`
+    + or any other columns you think might be of interest
+- Write this data frame to a tab-delimited text file
+
+
+
+******
+******
+******
+
+
+```{r}
+
+```
+
+## Predicting Amino acid changes
+
+```{r}
+library(BSgenome.Hsapiens.UCSC.hg19)
+coding.pred <- predictCoding(NA12878.calls, txdb, seqSource=Hsapiens)
+```
+
+
+
+```{r eval=FALSE}
+coding.pred 
+table(coding.pred $CONSEQUENCE)
+```
+
+```{r echo=FALSE}
+coding.pred [1:3]
+table(coding.pred $CONSEQUENCE)
+```
+
+
+```{r}
+coding.pred[coding.pred$CONSEQUENCE == "nonsense"]
+coding.pred[coding.pred$CONSEQUENCE == "frameshift"]
+```

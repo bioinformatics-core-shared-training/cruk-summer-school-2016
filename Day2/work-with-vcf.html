@@ -11,7 +11,6 @@
 
 <meta name="author" content="Mark Dunning" />
 
-<meta name="date" content="2016-05-24" />
 
 <title>Working with VCF files</title>
 
@@ -118,7 +117,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Working with VCF files</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>24 May 2016</em></h4>
+<h4 class="date"><em>Last modified: 16 Jul 2016</em></h4>
 
 </div>
 
@@ -142,18 +141,19 @@ $(document).ready(function () {
 <li>gives reasonable results</li>
 </ul>
 <p><code>freebayes</code> is a command-line tool that you will need to run from the terminal. As with all command-line tools, we first need to make sure that we are located in the correct directory. Remember that we can <em>change directory</em> using the unix command <code>cd</code>.</p>
-<pre><code>cd ~/home/participant/Course_Materials/Day2/</code></pre>
+<pre><code>cd /home/participant/Course_Materials/Day2/</code></pre>
 <p><code>freebayes</code> has already been installed for you on your desktop machine (or in the <em>docker</em> image, if you are using that). However, we can make sure that <code>freebayes</code> is available by typing <code>freebayes</code> at the terminal. This will give a basic description, a version number, and information about how to cite the package (very important if you end-up using the tool to generate results for your paper). Adding the <em>parameter</em> <code>-h</code> will display more-detailed help about the tool and some examples of how to use it.</p>
 <pre><code>freebayes
 freebayes -h</code></pre>
-<p>We are going to use <code>freebayes</code> to call SNVs on some <em>hapmap</em> samples. In order to make the SNV-calling run in a reasonable time, we are only considering reads aligned to chromosome 20 in this analysis. In the <a href="#appendix">Appendix</a> you will see the commands used to create the bam files.</p>
+<p>We are going to use <code>freebayes</code> to call SNVs on some <em>1000 genomes</em> samples. In order to make the SNV-calling run in a reasonable time, we are only considering reads aligned to chromosome 20 in this analysis. In the <a href="#appendix">Appendix</a> you will see the commands used to create the bam files.</p>
 <p>The minimal requirements to run <code>freebayes</code> (and why it is appealing for this practical!) are a reference genome and a <code>.bam</code> file. The <code>-f</code> parameter is used to specify the location of a reference genome in <code>.fasta</code> format.</p>
+<p>The reference file is in the folder <code>/home/participant/Course_Materials/ref_data</code>. However, rather than having the write the full <em>path</em> to the file, we can write the path relative to our current working directory (which is <code>/home/participant/Course_Materials/Day2</code>). When specifying the location of the files the <code>../</code> means to go one directory “<em>up</em>” from the current working directory.</p>
 <p><strong><em>Please don’t run this next command</em></strong></p>
-<pre><code>freebayes -f ../ref_data/human_g1k_v37.fasta data/hapmap/NA12878.chr20.bam</code></pre>
+<pre><code>freebayes -f ../ref_data/Homo_sapiens_assembly19.fasta ../data/hapmap/NA12878.chr20.bam</code></pre>
 <p>If you did run that command, you would quickly see that the screen gets filled with lots of text. These are the calls that <code>freebayes</code> is making being printed to the screen (the standard output for some unix commands). If you find yourself in this situation, a swift press of <code>CTRL + C</code> should stop the tool from running.</p>
 <p>What we need to do is <em>direct the output</em> to a file. We can call the output file anything we like, but it is advisable to make the name relatable to the name of the input. If we are in the situation of calling genotypes on many samples, with many different callers, then we want to be able to identify the processing used on each sample.</p>
 <p>Although it is not mandatory, we give the output file the extension <code>.vcf</code>. The <code>.vcf</code> format is a commonly-adopted standard for variant calls, which we will look into detail now.</p>
-<pre><code>freebayes -f ../ref_data/human_g1k_v37.fasta ../data/hapmap/NA12878.chr20.bam &gt; NA12878.chr20.freebayes.vcf</code></pre>
+<pre><code>freebayes -f ../ref_data/Homo_sapiens_assembly19.fasta ../data/hapmap/NA12878.chr20.bam &gt; NA12878.chr20.freebayes.vcf</code></pre>
 </div>
 <div id="understanding-the-vcf-format" class="section level2">
 <h2>Understanding the vcf format</h2>
@@ -322,7 +322,7 @@ freebayes -h</code></pre>
 </table>
 <p>So for this particular variant, in the sample <code>NA12878</code> there is a genotype of <code>0\1</code> (heterozygous) and a depth of 11 etc.</p>
 <p>To understand the vcf format better, we can use another mode of operation of <code>freebayes</code> which is to call genotypes on multiple samples simultaneously. We can also specify an exact region of the genome to call genotypes to speed-up the processing.</p>
-<pre><code>freebayes -f ../ref_data/human_g1k_v37.fasta --region 20:500000-800000 data/hapmap/NA12878.chr20.bam data/hapmap/NA12873.chr20.bam data/hapmap/NA12874.chr20.bam &gt; combined.chr20.subset.freebayes.vcf
+<pre><code>freebayes -f ../ref_data/Homo_sapiens_assembly19.fasta --region 20:500000-800000 ../data/hapmap/NA12878.chr20.bam ../data/hapmap/NA12873.chr20.bam ../data/hapmap/NA12874.chr20.bam &gt; combined.chr20.subset.freebayes.vcf
 </code></pre>
 <p>As before, we can look at the first five calls.</p>
 <pre><code>#CHROM  POS ID  REF ALT QUAL    FILTER  INFO    FORMAT  NA12878 NA12873 NA12874
@@ -361,6 +361,15 @@ tabix -p vcf NA12878.chr20.freebayes.vcf.gz
 </div>
 <div id="importing-into-bioconductor" class="section level2">
 <h2>Importing into Bioconductor</h2>
+<div id="working-directory" class="section level3">
+<h3>Working directory</h3>
+<p><strong><em>Session</em></strong> -&gt; <strong><em>Set Working Directory</em></strong> -&gt; <strong><em>Choose Directory</em></strong></p>
+<pre><code>/home/participant/Course_Materials/Day2/</code></pre>
+</div>
+<div id="template" class="section level3">
+<h3>Template</h3>
+<pre><code>/home/participant/Course_Materials/Day2/Session1-template.Rmd</code></pre>
+</div>
 <div id="multi-sample-example" class="section level3">
 <h3>Multi-sample example</h3>
 <p>The <code>VariantAnnotation</code> package allows <code>.vcf</code> files to be imported. The <code>readVcf</code> function can be used and requires the file of a vcf file. You also need to specify a genome name. As we have seen already with other Bioconductor objects, typing the name of the object will print a summary to the screen. In the case of a “<code>CollapsedVCF</code>” object this is very detailed</p>
@@ -611,6 +620,8 @@ hapmap.calls.homs &lt;- hapmap.calls[all.hom]</code></pre>
 <p><code>VariantAnnotation</code> also has the capability to write an object as a <code>.vcf</code> file for further inspection.</p>
 <pre class="r"><code>writeVcf(hapmap.calls.homs, filename = &quot;hapmap.common.hom.vcf&quot;)</code></pre>
 <hr />
+<hr />
+<hr />
 <div id="exercise-1" class="section level3">
 <h3>Exercise</h3>
 <p>Find all the positions that were called as heterozyous in all samples</p>
@@ -620,10 +631,12 @@ hapmap.calls.homs &lt;- hapmap.calls[all.hom]</code></pre>
 <li>Write the remaining variants as a vcf file</li>
 </ul>
 <hr />
+<hr />
+<hr />
 </div>
 <div id="case-2-variant-locations" class="section level3">
 <h3>Case 2: Variant locations</h3>
-<p>In this next section we will see how we can overlap the calls we have made with other genomic features, such as the pre-built gene models that we saw yesterday.</p>
+<p>In this section we will see how we can overlap the calls we have made with other genomic features, such as the pre-built gene models that we saw yesterday.</p>
 <p>For this section, we are going to use all calls made on chromosome 20 for a single sample; <code>NA12878</code>. As we discovered yesterday, it can be problematic trying to perform overlaps when the chromosome naming convention is not consistent between files. Consequently, we are going to rename our variants to the <code>UCSC</code> style from the start.</p>
 <pre class="r"><code>NA12878.calls &lt;- readVcf(&quot;NA12878.chr20.freebayes.vcf&quot;,&quot;hg19&quot;)
 seqlevelsStyle(NA12878.calls) &lt;- &quot;UCSC&quot;
@@ -652,6 +665,8 @@ NA12878.calls &lt;- keepSeqlevels(NA12878.calls, &quot;chr20&quot;)</code></pre>
 <pre class="r"><code>library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 txdb &lt;- TxDb.Hsapiens.UCSC.hg19.knownGene</code></pre>
 <hr />
+<hr />
+<hr />
 <div id="exercise-2" class="section level3">
 <h3>Exercise</h3>
 <p>Find all <code>NA12878</code> variants that have been called within the gene “PRND”</p>
@@ -661,11 +676,13 @@ txdb &lt;- TxDb.Hsapiens.UCSC.hg19.knownGene</code></pre>
 <li>check your answer in IGV</li>
 </ul>
 <hr />
+<hr />
+<hr />
 </div>
 </div>
 <div id="more-automated-location-of-variants" class="section level2">
 <h2>More-automated location of variants</h2>
-<p>With a bit of scripting it would be possible to <em>loop</em> through a series of gene locations and get locate which gene each variant is located within. However, there is a convenience function <code>locateVariants</code> that will do the hard work for us. It has flexibility to allow us to search for variants within coding, intergenic or other regions. For example, adding the <code>CodingVariants()</code>argument tells the function to look for variants within coding sequences. You can see the help for <code>locateVariants</code> (<code>?locateVariants</code>) for information on the various options.</p>
+<p>With a bit of scripting it would be possible to <em>loop</em> through a series of gene locations and identify which gene each variant is located within. However, there is a convenience function <code>locateVariants</code> that will do the hard work for us. It has flexibility to allow us to search for variants within coding, intergenic or other regions. For example, adding the <code>CodingVariants()</code>argument tells the function to look for variants within coding sequences. You can see the help for <code>locateVariants</code> (<code>?locateVariants</code>) for information on the various options.</p>
 <p>As this function runs you should see some message sbout <code>select()' returned many:1 mapping between keys and columns</code>. This is because some variants might be located within multiple transcripts for the same gene.</p>
 <pre class="r"><code>locs &lt;- locateVariants(NA12878.calls.ranges, txdb, CodingVariants())</code></pre>
 <pre><code>## 'select()' returned many:1 mapping between keys and columns</code></pre>
@@ -688,7 +705,7 @@ txdb &lt;- TxDb.Hsapiens.UCSC.hg19.knownGene</code></pre>
 ##   3                
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
-<p>This annotation step has put <em>Entrez IDs</em></p>
+<p>This annotation step has put <em>Entrez IDs</em> into the <code>locs</code> object, which is great if we want overlap with transcript databases. However, we are more likely to be familiar with gene symbols. We can do a look-up using the <code>org.Hs.eg.db</code> package that we saw yesterday and add the identifiers we retrieve to the table.</p>
 <pre class="r"><code>library(org.Hs.eg.db)</code></pre>
 <pre><code>## </code></pre>
 <pre class="r"><code>symbol &lt;- select(org.Hs.eg.db, keys=mcols(locs)$GENEID, keytype = &quot;ENTREZID&quot;, columns=&quot;SYMBOL&quot;)</code></pre>
@@ -846,6 +863,8 @@ dim(info.df)</code></pre>
 ##   -------
 ##   seqinfo: 1 sequence from hg19 genome</code></pre>
 <hr />
+<hr />
+<hr />
 <div id="exercise-3" class="section level3">
 <h3>Exercise</h3>
 <p>Construct a data frame containing:-</p>
@@ -879,6 +898,8 @@ dim(info.df)</code></pre>
 ## 4    CT  62.9073      .  3  1  0  3
 ## 5     T  39.4505      .  5  1  2  3
 ## 6     C  11.0642      .  3  1  1  2</code></pre>
+<hr />
+<hr />
 <hr />
 </div>
 </div>
@@ -1016,8 +1037,8 @@ table(coding.pred $CONSEQUENCE)</code></pre>
 <ul>
 <li>First, get a copy of the reference genome from the 1000 genomes FTP site</li>
 </ul>
-<pre><code>wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz -P ../ref_data/
-gunzip ../ref_data/human_g1k_v37.fasta.gz
+<pre><code>wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/Homo_sapiens_assembly19.fasta.gz -P ../ref_data/
+gunzip ../ref_data/Homo_sapiens_assembly19.fasta.gz
 </code></pre>
 <ul>
 <li>We have already seen how <code>samtools</code> can be used to view aligned reads in <code>.bam</code> format. In fact, the <code>.bam</code> does not need to be stored locally on our desktop machine, and can be an FTP link. Here we <code>view</code> the remote link to the bam file and extract only the chromosome 22 reads.</li>
