@@ -1,0 +1,64 @@
+---
+title: "Day 1 R Summary"
+author: "Mark Dunning"
+date: "16 July 2016"
+output: html_document
+---
+
+
+# Packages
+
+## `ShortRead`
+
+Import and manipulation of `.fastq` files. 
+
+- `readFastq`
+  + import a fastq file
+
+## `Biostrings`
+
+Efficient manipulation of DNA strings
+
+- `subseq`
+
+## `GenomicRanges`
+
+Create a ranges representation of a genomic interval
+
+- `countOverlaps(X,Y)`
+    + for each range in X, how many ranges in Y does it overlap with
+
+- ` X %over% Y`
+    + returns TRUE if a given range in X is also present in Y
+
+## `GenomicAlignments`
+
+Importing aligned reads in `.bam` format
+
+- `readGAligments`
+    + can specify other fields to include
+    + can read a portion of the file
+    
+
+
+    
+## `org.Hs.eg.db`
+
+Mapping gene identifiers for human genome (equivalent packages available for other organisms)
+
+- `columns`
+  + list the names of columns that can be returned
+  
+- `keytypes`
+  + list the names of keys that can be used
+  
+## `TxDb.Hsapiens.UCSC.hg19.knownGene`
+
+Transcript mappings for all human genes (equivalent packages available for other organisms and genome builds)
+
+- `exons`
+    + get all exons
+- `exonsBy`
+    + get a list of exons grouped by Entrez ID
+
+
