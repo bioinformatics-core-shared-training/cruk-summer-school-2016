@@ -1,0 +1,132 @@
+---
+title: 'Session 2: Raw Reads'
+author: "Your Name"
+date: "16 July 2016"
+output: html_document
+---
+
+******
+******
+******
+### Exercise
+
+Import the example `fastq` file using the `ShortRead` package.
+
+- How many reads are found?
+- How long is each sequenced read?
+
+
+```{r}
+library(ShortRead)
+fq <- readFastq("sample.fq1")
+fq
+```
+
+******
+******
+******
+
+
+
+******
+******
+******
+
+### Exercise
+- Use `subseq` to print the first five basees of the sequenced reads
+
+```{r}
+myreads >- sread(fq)
+firstBases <- subseq(myreads,1,5)
+firstBases
+```
+
+
+- How many reads start with five A's?
+    + HINT: we can test for equality using `==` which gives a logical (`TRUE` or `FALSE`)
+    + HINT: `table` can be used to get counts of how many different values occur in a vector
+- What is the most-common five bases at the start of the reads
+    + HINT: `sort` will produce a sorted version of a vector
+
+******
+******
+******
+
+
+```{r}
+
+```
+
+## Base counts with letterFrequency
+
+```{r}
+af <- letterFrequency(sread(fq), letters=c("A","C","G","T","N"))
+head(af)
+aS <- af[,1]
+hist(aS)
+```
+
+
+******
+******
+******
+### Exercise
+
+
+- Which read has the greatest number of N bases?
+- Create a vector to represent the "GC" content of each read
+- What is the mean number of GC bases?
+- Visualise the GC distribution using a histogram
+- What reads have more than 60 GC bases?
+
+
+******
+******
+******
+
+```{r}
+
+``` 
+
+
+## Base composition at each round of sequencing
+
+```{r}
+abc <- alphabetByCycle(myreads,alphabet = c("A","C","G","T","N"))
+head(abc)[,1:5]
+plot(1:68, abc[5,1:68],type="n")
+text(1:68, abc[5,1:68], label="N"
+```
+
+
+
+******
+******
+******
+### Exercise
+
+
+Can you make a plot to illustrate the number of each DNA base observed at each position?
+
+- See lecture for output
+
+******
+******
+******
+
+```{r}
+
+```
+
+
+## Dealing with qualities
+
+```{r}
+quality(fq)
+myquals <- quality(fq)
+encoding(quality(fq))
+qm <- as(quality(fq), "matrix")
+head(qm)
+
+qualmeans <- colMeans(qm)
+plot(qualmeans)

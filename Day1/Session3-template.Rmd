@@ -1,0 +1,178 @@
+---
+title: "Session 3; Aligned Reads"
+author: "Your Name"
+date: "16 July 2016"
+output: html_document
+---
+
+## Importing aligned data
+
+```{r}
+library(GenomicAlignments)
+mybam <- readGAlignments("paired.bam")
+mybam
+mybam[1:10]
+```
+
+
+******
+******
+******
+
+### Exercise
+
+- How many reads have an exact match to the genome
+    + what cigar string would this be?
+- What proportion of all reads is this?
+
+******
+******
+******
+
+```{r}
+bam <- readGAlignments("paired.bam",param=ScanBamParam(what=c("seq","mapq","flag")))
+bam
+```
+
+```{r}
+meta <- mcols(bam)
+meta
+meta$seq
+table(meta$flag)
+summary(meta$mapq)
+hist(meta$mapq)
+```
+
+
+
+```{r}
+my.reads <- which(seqnames(mybam)=="17" & start(mybam) > 7577851 & end(mybam) < 7598063)
+mybam[my.reads]
+```
+
+## Introducing ranges objects
+
+```{r}
+ir <- IRanges(
+start = c(7,9,12,14,22:24), 
+end=c(15,11,13,18,26,27,28))
+ir
+```
+
+```{r}
+shift(ir, 5)
+resize(ir ,2)
+reduce(ir)
+coverage(ir)
+```
+
+
+
+```{r}
+mygene <- GRanges("chr17", ranges=IRanges(7577851, 7598063),strand="+")
+mygene
+```
+
+```{r}
+mygene <- GRanges("chr17", ranges=IRanges(7577851, 7598063))
+seqlevelsStyle(mygene)
+seqlevelsStyle(mybam)
+seqlevelsStyle(mygene) <- "NCBI"
+countOverlaps(mygene, mybam)
+```
+
+
+
+```{r}
+
+```
+
+
+## Extracting a subset of reads
+
+```{r}
+mygene.reads <- readGAlignments(file="paired.bam",param=ScanBamParam(which=mygene))
+```
+
+## Pre-built databases of gene coordinates
+
+```{r}
+library(org.Hs.eg.db)
+org.Hs.eg.db
+```
+
+```{r}
+keytypes(org.Hs.eg.db)
+columns(org.Hs.eg.db)
+eg <- select(org.Hs.eg.db, keys="BRCA1", keytype = "SYMBOL",columns = "ENTREZID")
+eg
+```
+
+```{r}
+eg <- select(org.Hs.eg.db, keys=c("BRCA1","PTEN"), keytype = "SYMBOL",columns = c("ENTREZID","ENSEMBL"))
+eg
+```
+
+
+```{r}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+columns(txdb)
+keytypes(txdb)
+mygene <- select(txdb, keys="672", columns = c("EXONCHROM","EXONSTART","EXONEND","EXONSTRAND"),keytype="GENEID")
+mygene
+```
+
+******
+******
+******
+
+### Exercise
+
+- Using the results from the previous exercise, retrieve the exon coordinates for the gene `PTEN`
+- How about all transcripts for PTEN and BRCA1?
+
+******
+******
+******
+
+```{r}
+
+```
+
+
+```{r}
+my.gr <- GRanges(mygene$EXONCHROM, IRanges(mygene$EXONSTART,mygene$EXONEND))
+my.gr
+allex <- exonsBy(txdb, "gene")
+mygene <- allex[["672"]]
+mygene
+
+```
+
+```{r}
+seqlevelsStyle(mybam)
+seqlevelsStyle(mygene)
+seqlevelsStyle(mygene) <- "Ensembl"
+mygene
+```
+
+```{r}
+mybam.chr17 <- keepSeqlevels(mybam, "17")
+mybam.chr17[mybam.chr17 %over% mygene]
+```
+
+
+******
+******
+******
+
+### Exercise
+
+- Import all the reads from the file `paired.bam` that align to the gene PTEN
+- Obtain counts for the number of reads mapping to each exon of PTEN
+- How many reads don't have a perfect match to the reference genome?
+
+******
+******
+******
