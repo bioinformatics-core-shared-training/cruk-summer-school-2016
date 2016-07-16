@@ -166,11 +166,21 @@ S=;&gt;&gt;&gt;:=;?&gt;@;=&lt;?@@&lt;&gt;&lt;?@@;@&lt;AA@=&lt;BA?;=:?&gt;&gt;4A9
 <pre><code>wc -l sample.fq1</code></pre>
 <pre><code>25162140 sample.fq1</code></pre>
 <p>We will now use the <code>ShortRead</code> Bioconductor package to understand these files a bit more. Please note that we are using this package for exploration and to demonstrate what the data look like. We probably wouldn’t want to perform these tasks in a production-level analysis, and there are far superior tools for visualising fastq files (as we will see later).</p>
-<p>Before you begin, you’ll need to make sure that your <em>working directory</em> is set to <code>/home/participant/Course_Materials/Day1/</code>. The easiest way to do this is to navigate the RStudio menus</p>
+</div>
+<div id="getting-started" class="section level2">
+<h2>Getting started</h2>
+<div id="working-directory" class="section level3">
+<h3>Working directory</h3>
 <p><strong><em>Session</em></strong> -&gt; <strong><em>Set Working Directory</em></strong> -&gt; <strong><em>Choose Directory</em></strong></p>
+<pre><code>/home/participant/Course_Materials/Day1/</code></pre>
+</div>
+<div id="template" class="section level3">
+<h3>Template</h3>
+<pre><code>/home/participant/Course_Materials/Day1/Session2-template.Rmd</code></pre>
 <hr />
 <hr />
 <hr />
+</div>
 <div id="exercise" class="section level3">
 <h3>Exercise</h3>
 <p>Import the example <code>fastq</code> file using the <code>ShortRead</code> package.</p>
@@ -259,10 +269,10 @@ firstBases</code></pre>
 <p>Moral: always check if there is a function in <code>Biostrings</code> that you can use rather than a base function.</p>
 <pre class="r"><code>system.time(subseq(myreads, 1,5))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.400   0.004   0.406</code></pre>
+##   0.418   0.012   0.432</code></pre>
 <pre class="r"><code>system.time(substr(myreads, 1,5))</code></pre>
 <pre><code>##    user  system elapsed 
-##  27.391   0.549  28.027</code></pre>
+##  27.691   0.812  28.582</code></pre>
 <p>Another useful function is <code>letterFrequency</code>, which seeks to tabulate the number of letters in each sequence in the form of a matrix.</p>
 <pre class="r"><code>af &lt;- letterFrequency(sread(fq), letters=c(&quot;A&quot;,&quot;C&quot;,&quot;G&quot;,&quot;T&quot;,&quot;N&quot;))
 head(af)</code></pre>
