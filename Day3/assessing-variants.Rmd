@@ -1,0 +1,26 @@
+---
+title: "Assessing Evaluating SNV calls"
+author: "Mark Dunning"
+date: "18 July 2016"
+output: html_document
+---
+
+# Introduction
+
+The purpose of this practical is to get you familiar with visualising SNV calls in IGV, and to assess whether they are genuine calls or technical artefacts. We will use `HCC1143_vs_HCC1143_BL.muts.ids.vcf`
+
+## Variant 1:
+
+
+[Click here to view in IGV](http://localhost:60151/load?file=/home/dunnin01/Course_Materials/data/cell-line/HCC1143.mix1.n20t80.reheader.bam,/home/dunnin01/Course_Materials/data/cell-line/HCC1143.NORMAL.30x.compare.reheader.bam,/home/dunnin01/Course_Materials/Day3/HCC1143_vs_HCC1143_BL.flagged.muts.vcf.gz&locus=egfr&genome=hg19)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSe2LQZRl1OE_SwXNc7L5t1YABG1MccnfoUvfnAnIBBbxFaroA/viewform)
+
+
+## Variant 2
+
+
+[Click here to view in IGV](http://localhost:60151/load?file=/home/dunnin01/Course_Materials/data/cell-line/HCC1143.mix1.n20t80.reheader.bam,/home/dunnin01/Course_Materials/data/cell-line/HCC1143.NORMAL.30x.compare.reheader.bam,/home/dunnin01/Course_Materials/Day3/HCC1143_vs_HCC1143_BL.flagged.muts.vcf.gz&locus=brca1&genome=hg19)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSdpcUUnDPwWlHDydXlILnSL-qxhO_y4UkAZccv2l8ONSvbLCg/viewform)
+
