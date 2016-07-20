@@ -91,6 +91,16 @@ Find all `NA12878` variants that have been called within the gene "PRND"
 
 
 ```{r}
+library(rtracklayer)
+regions <- import("regions.of.interest.bed")
+regions
+NA12878.calls.ranges[NA12878.calls.ranges %over% bed]
+countOverlaps(regions, NA12878.calls.ranges)
+```
+
+
+
+```{r}
 locs <- locateVariants(NA12878.calls.ranges, txdb, CodingVariants())
 locs
 ```
