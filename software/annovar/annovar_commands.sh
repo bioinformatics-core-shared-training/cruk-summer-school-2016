@@ -17,4 +17,4 @@
 ./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar nci60 humandb/
 ./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_sift humandb/
 ./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_mt humandb/
-./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_ma humandb/
+./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_fathmm humandb/ 
