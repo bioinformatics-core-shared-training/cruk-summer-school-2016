@@ -26,6 +26,11 @@ fq
 ******
 ******
 
+```{r}
+sread(fq)
+myreads <- sread(fq)
+```
+
 
 
 ******
@@ -36,7 +41,6 @@ fq
 - Use `subseq` to print the first five basees of the sequenced reads
 
 ```{r}
-myreads >- sread(fq)
 firstBases <- subseq(myreads,1,5)
 firstBases
 ```
@@ -72,8 +76,6 @@ hist(aS)
 ******
 ### Exercise
 
-
-- Which read has the greatest number of N bases?
 - Create a vector to represent the "GC" content of each read
 - What is the mean number of GC bases?
 - Visualise the GC distribution using a histogram
@@ -89,33 +91,12 @@ hist(aS)
 ``` 
 
 
-## Base composition at each round of sequencing
-
 ```{r}
-abc <- alphabetByCycle(myreads,alphabet = c("A","C","G","T","N"))
-head(abc)[,1:5]
-plot(1:68, abc[5,1:68],type="n")
-text(1:68, abc[5,1:68], label="N"
-```
-
-
-
-******
-******
-******
-### Exercise
-
-
-Can you make a plot to illustrate the number of each DNA base observed at each position?
-
-- See lecture for output
-
-******
-******
-******
-
-```{r}
-
+plot(abc[1,],type="n",ylim=c(0,2000000))
+text(abc[1,1:68],label="A",col="red")
+text(abc[2,1:68],label="C",col="orange")
+text(abc[3,1:68],label="G",col="blue")
+text(abc[4,1:68],label="T",col="green")
 ```
 
 
