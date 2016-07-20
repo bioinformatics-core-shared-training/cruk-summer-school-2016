@@ -15,4 +15,6 @@
 ./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cosmic70 humandb/
 ./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar icgc21 humandb/
 ./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar nci60 humandb/
-./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar dbnsfp30a humandb/ 
+./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_sift humandb/
+./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_mt humandb/
+./annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb23_ma humandb/
