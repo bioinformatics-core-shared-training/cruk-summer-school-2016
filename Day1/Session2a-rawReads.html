@@ -117,11 +117,45 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Understanding Sequencing Reads: Introduction</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>Last modified: 16 Jul 2016</em></h4>
+<h4 class="date"><em>Last modified: 20 Jul 2016</em></h4>
 
 </div>
 
 
+<div id="why-do-sequencing" class="section level1">
+<h1>Why do sequencing?</h1>
+<div id="microarrays-vs-sequencing" class="section level2">
+<h2>Microarrays vs sequencing</h2>
+<ul>
+<li>Probe design issues with microarrays
+<ul>
+<li><em>‘Dorian Gray effect’</em> <a href="http://www.biomedcentral.com/1471-2105/5/111" class="uri">http://www.biomedcentral.com/1471-2105/5/111</a></li>
+<li>‘…mappings are frozen, as a Dorian Gray-like syndrome: the apparent eternal youth of the mapping does not reflect that somewhere the ’picture of it’ decays’</li>
+</ul></li>
+<li>Sequencing data are ‘future proof’
+<ul>
+<li>if a new genome version comes along, just re-align the data!</li>
+<li>can grab published-data from public repositories and re-align to <strong>your</strong> own choice of genome / transcripts and aligner</li>
+</ul></li>
+<li>Limited number of novel findings from microarays
+<ul>
+<li>can’t find what you’re not looking for!</li>
+</ul></li>
+<li>Genome coverage
+<ul>
+<li>some areas of genome are problematic to design probes for</li>
+</ul></li>
+<li>Fusion genes, re-arrangements and complex events
+<ul>
+<li>not possible with microarray technology</li>
+</ul></li>
+<li>Maturity of analysis techniques
+<ul>
+<li>on the other hand, analysis methods and workflows for microarrays are well-established</li>
+<li>until recently…</li>
+</ul></li>
+</ul>
+</div>
 <div id="illumina-sequencing-overview" class="section level2">
 <h2>Illumina sequencing overview*</h2>
 <p>This video gives and overview of the <em>‘sequencing-by-synthesis’</em> approach used by Illumina. Other companies will have different techniques, but Illumina is probably the most-popular sequencing technology out there. For most of what we will discuss, it won’t really matter how your samples were sequenced.</p>
@@ -371,6 +405,8 @@ round(probs,3)</code></pre>
 ## [45] 0.002 0.001 0.001 0.050 0.001 0.001 0.001 0.002 0.001 0.003 0.001
 ## [56] 0.631 0.631 0.631 0.631 0.631 0.631 0.631 0.631 0.631 0.631 0.631
 ## [67] 0.631 0.631</code></pre>
+<p>Now it’s time to get our hands on some <code>.fastq</code> data and start to explore it.</p>
+</div>
 </div>
 </div>
 
