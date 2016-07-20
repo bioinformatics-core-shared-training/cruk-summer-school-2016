@@ -1,26 +1,98 @@
 ---
-title: "Assessing Evaluating SNV calls"
-author: "Mark Dunning"
-date: "18 July 2016"
+title: "Assessing & Evaluating SNV calls"
+author: "Mark Dunning and Matt Eldridge"
+date: '`r format(Sys.time(), "Last modified: %d %b %Y")`'
 output: html_document
 ---
 
 # Introduction
 
-The purpose of this practical is to get you familiar with visualising SNV calls in IGV, and to assess whether they are genuine calls or technical artefacts. We will use `HCC1143_vs_HCC1143_BL.muts.ids.vcf`
+The purpose of this practical is to get you familiar with visualising SNV calls in IGV, and to assess whether they are genuine calls or technical artefacts. 
+
+## Preparation
+
+- Load the Tumour bam file `/home/participant/Course_Materials/data/cell-line/HCC1143.mix1.n20t80.reheader.bam`
+- Load the Normal bam file `/home/participant/Course_Materials/data/cell-line/HCC1143.NORMAL.30x.compare.reheader.bam`
 
 ## Variant 1:
 
+`chr8:142486034`
 
-[Click here to view in IGV](http://localhost:60151/load?file=/home/dunnin01/Course_Materials/data/cell-line/HCC1143.mix1.n20t80.reheader.bam,/home/dunnin01/Course_Materials/data/cell-line/HCC1143.NORMAL.30x.compare.reheader.bam,/home/dunnin01/Course_Materials/Day3/HCC1143_vs_HCC1143_BL.flagged.muts.vcf.gz&locus=egfr&genome=hg19)
+[Click here to view in IGV](http://localhost:60151/goto?locus=8:142486033)
 
 [Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSe2LQZRl1OE_SwXNc7L5t1YABG1MccnfoUvfnAnIBBbxFaroA/viewform)
 
 
 ## Variant 2
 
+`chr22:142486034`
 
-[Click here to view in IGV](http://localhost:60151/load?file=/home/dunnin01/Course_Materials/data/cell-line/HCC1143.mix1.n20t80.reheader.bam,/home/dunnin01/Course_Materials/data/cell-line/HCC1143.NORMAL.30x.compare.reheader.bam,/home/dunnin01/Course_Materials/Day3/HCC1143_vs_HCC1143_BL.flagged.muts.vcf.gz&locus=brca1&genome=hg19)
+[Click here to view in IGV](http://localhost:60151/goto?locus=22:38120428)
 
 [Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSdpcUUnDPwWlHDydXlILnSL-qxhO_y4UkAZccv2l8ONSvbLCg/viewform)
 
+
+## Variant 3
+
+`chr14:106471685`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=14:106471684)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSfqo7oZkTdYNCsF6Xjuvwd47ruqMw7kKPOssBwDV_NVhls3SA/viewform)
+
+## Variant 4
+
+`chr1:9633452`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=1:9633451)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSfIDyY_r4GA8plwhOiFrHn64LZ6pbf_YKk-dgFdE8L7oecowQ/viewform)
+
+
+## Variant 5
+
+`chr15:91537757`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=15:91537756)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSfXAJSAmh4QwlH6g-6QSf2Csg_xupu6G48UcDItrctHW2h7Zw/viewform)
+
+## Variant 6
+
+`chr3:177090982`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=3:177090981)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSfA-w_-WN34nEhSIaqzdpThmmqDrEIB2YZKcsuSuyUALNL27A/viewform)
+
+## Variant 7
+
+`chr15:68175783`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=15:68175782)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSexqNn9I7BaSWvi4b9QzG64xzqERjlojCuao4-4qVzQfA3x1Q/viewform)
+
+## Variant 8
+
+`chr3:140281877`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=3:140281876)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSevOKAdDXMQ0IikRJPubQNTkZm3GYMKSdgOpdb7tKP_Ca1w_w/viewform)
+
+## Variant 9
+
+`chr2:9983580`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=2:9983579)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLScnl61AlBzaPEx1Zn0fI7jsGksyQXWMb7Kvo6SB4QaKERT6gQ/viewform)
+
+## Variant 10
+
+`chr4:22961617`
+
+[Click here to view in IGV](http://localhost:60151/goto?locus=4:22961616)
+
+[Click here to vote on your confidence in the call](https://docs.google.com/forms/d/e/1FAIpQLSctRLQosKFXodunbTWsFnBbNwgjS4fTGQsNh4ky525ZP2-zlA/viewform)
