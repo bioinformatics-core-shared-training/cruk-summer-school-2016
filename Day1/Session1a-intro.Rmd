@@ -202,3 +202,4 @@ A breast-cancer cell-line on which we have data available and has been used as p
 - On a Mac / Windows machine, you'll need to download the Docker software
 - After that it's just a single command to get all software you need
     + in theory at least (!)
+
