@@ -85,7 +85,7 @@ The purpose of this practical is to get you familiar with visualising SNV calls 
 
 [Click here to view in IGV](http://localhost:60151/goto?locus=15:68175783)
 
-<a target="_blank" href="(https://docs.google.com/forms/d/e/1FAIpQLSevOKAdDXMQ0IikRJPubQNTkZm3GYMKSdgOpdb7tKP_Ca1w_w/viewform">Click here to vote on your confidence in the call</a>
+<a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSevOKAdDXMQ0IikRJPubQNTkZm3GYMKSdgOpdb7tKP_Ca1w_w/viewform">Click here to vote on your confidence in the call</a>
 
 ## Variant 9
 
