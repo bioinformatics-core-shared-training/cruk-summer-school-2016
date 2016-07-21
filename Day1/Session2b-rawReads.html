@@ -117,7 +117,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Understanding Sequencing Reads</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>Last modified: 20 Jul 2016</em></h4>
+<h4 class="date"><em>Last modified: 21 Jul 2016</em></h4>
 
 </div>
 
@@ -135,7 +135,7 @@ $(document).ready(function () {
 <li>How complex data structures can be assessed in Bioconductor</li>
 </ul>
 <p>Two example fastq files have been provided for you in the folder <code>/home/participant/Course_Materials/Day1/</code>. As we discussed, they can be viewed without any specialist software. If you are curious how these fastq files were generated, you can see the <a href="#appendix">Appendix</a> for details.</p>
-<p>We can open a <strong><em>Terminal</em></strong> window and print the first few lines using the standard unix command <code>head</code></p>
+<p>We can launch the <strong><em>CRUK Docker</em></strong> from the Desktop and print the first few lines using the standard unix command <code>head</code></p>
 <pre><code>cd /home/participant/Course_Materials/Day1/</code></pre>
 <pre><code>head -n 12 sample.fq1</code></pre>
 <pre><code>@SRR081708.237649/1
@@ -270,10 +270,10 @@ firstBases</code></pre>
 <p>Moral: always check if there is a function in <code>Biostrings</code> that you can use rather than a base function.</p>
 <pre class="r"><code>system.time(subseq(myreads, 1,5))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.405   0.000   0.407</code></pre>
+##   0.406   0.000   0.407</code></pre>
 <pre class="r"><code>system.time(substr(myreads, 1,5))</code></pre>
 <pre><code>##    user  system elapsed 
-##  27.154   0.555  27.890</code></pre>
+##  26.227   0.503  26.804</code></pre>
 <p>Another useful function is <code>letterFrequency</code>, which seeks to tabulate the number of letters in each sequence in the form of a matrix.</p>
 <pre class="r"><code>af &lt;- letterFrequency(sread(fq), letters=c(&quot;A&quot;,&quot;C&quot;,&quot;G&quot;,&quot;T&quot;,&quot;N&quot;))
 head(af)</code></pre>
