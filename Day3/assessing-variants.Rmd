@@ -17,9 +17,9 @@ The purpose of this practical is to get you familiar with visualising SNV calls 
 
 ## Variant 1:
 
-`chr8:142486034`
+`chr8:142486034, C -> T`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=8:142486033)
+[Click here to view in IGV](http://localhost:60151/goto?locus=8:142486034)
 
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSe2LQZRl1OE_SwXNc7L5t1YABG1MccnfoUvfnAnIBBbxFaroA/viewform">Click here to vote on your confidence in the call</a>
@@ -27,9 +27,9 @@ The purpose of this practical is to get you familiar with visualising SNV calls 
 
 ## Variant 2
 
-`chr22:142486034`
+`chr14:106471685, G -> A`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=22:38120428)
+[Click here to view in IGV](http://localhost:60151/goto?locus=14:106471685)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSdpcUUnDPwWlHDydXlILnSL-qxhO_y4UkAZccv2l8ONSvbLCg/viewform">Click here to vote on your confidence in the call</a>
 
@@ -37,17 +37,17 @@ The purpose of this practical is to get you familiar with visualising SNV calls 
 
 ## Variant 3
 
-`chr14:106471685`
+`chr15:91537757, C -> G`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=14:106471684)
+[Click here to view in IGV](http://localhost:60151/goto?locus=15:91537757)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfqo7oZkTdYNCsF6Xjuvwd47ruqMw7kKPOssBwDV_NVhls3SA/viewform">Click here to vote on your confidence in the call</a>
 
 ## Variant 4
 
-`chr1:9633452`
+`chr22:38120429, T -> C`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=1:9633451)
+[Click here to view in IGV](http://localhost:60151/goto?locus=22:38120429)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfIDyY_r4GA8plwhOiFrHn64LZ6pbf_YKk-dgFdE8L7oecowQ/viewform">Click here to vote on your confidence in the call</a>
 
@@ -55,50 +55,50 @@ The purpose of this practical is to get you familiar with visualising SNV calls 
 
 ## Variant 5
 
-`chr15:91537757`
+`chr2:9983580, T -> C`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=15:91537756)
+[Click here to view in IGV](http://localhost:60151/goto?locus=2:9983580)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfXAJSAmh4QwlH6g-6QSf2Csg_xupu6G48UcDItrctHW2h7Zw/viewform">Click here to vote on your confidence in the call</a>
 
 
 ## Variant 6
 
-`chr3:177090982`
+`chr1:9633452, G -> A`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=3:177090981)
+[Click here to view in IGV](http://localhost:60151/goto?locus=1:9633452)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfA-w_-WN34nEhSIaqzdpThmmqDrEIB2YZKcsuSuyUALNL27A/viewform">Click here to vote on your confidence in the call</a>
 
 
 ## Variant 7
 
-`chr15:68175783`
+`chr3:177090982, A -> G`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=15:68175782)
+[Click here to view in IGV](http://localhost:60151/goto?locus=3:177090982)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSexqNn9I7BaSWvi4b9QzG64xzqERjlojCuao4-4qVzQfA3x1Q/viewform">Click here to vote on your confidence in the call</a>
 
 ## Variant 8
 
-`chr3:140281877`
+`chr15:68175783, A -> G`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=3:140281876)
+[Click here to view in IGV](http://localhost:60151/goto?locus=15:68175783)
 
-<a target="_blank" href="(https://docs.google.com/forms/d/e/1FAIpQLSevOKAdDXMQ0IikRJPubQNTkZm3GYMKSdgOpdb7tKP_Ca1w_w/viewform">Click here to vote on your confidence in the call</a>
+<a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSevOKAdDXMQ0IikRJPubQNTkZm3GYMKSdgOpdb7tKP_Ca1w_w/viewform">Click here to vote on your confidence in the call</a>
 
 ## Variant 9
 
-`chr2:9983580`
+`chr3:140281877, A -> C`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=2:9983579)
+[Click here to view in IGV](http://localhost:60151/goto?locus=3:140281877)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLScnl61AlBzaPEx1Zn0fI7jsGksyQXWMb7Kvo6SB4QaKERT6gQ/viewform">Click here to vote on your confidence in the call</a>
 
 ## Variant 10
 
-`chr4:22961617`
+`chr4:22961617, A -> T`
 
-[Click here to view in IGV](http://localhost:60151/goto?locus=4:22961616)
+[Click here to view in IGV](http://localhost:60151/goto?locus=4:22961617)
 
 <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSctRLQosKFXodunbTWsFnBbNwgjS4fTGQsNh4ky525ZP2-zlA/viewform">Click here to vote on your confidence in the call</a>
