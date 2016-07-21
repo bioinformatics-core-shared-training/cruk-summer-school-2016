@@ -38,12 +38,12 @@ We're based at [Cancer Research Uk Cambridge Institute](http://www.cruk.cam.ac.u
     + Senior Research Associate, Markowetz (Systems Genetics of Cancer) and Brenton (Functional genomics of ovarian cancer)
 - Matt
     + Bioinformatics Core Head
-- Gabriella
-    + Bioinformatics Training Facility
+- Cathy
+    + Bioinformatics Training Facility, Administrator
 - Paul
-    + Bioinformatics Training Facility
+    + Bioinformatics Training Facility, Sys Admin
     
-Huge thanks too to Helen Anderson (CRUK) and Cathy Hemmings (Genetics) for admin support
+Huge thanks too to Helen Anderson (CRUK) for admin support and Maria Secrier for materials 
 
 # Who are you?
 
@@ -79,30 +79,47 @@ grid.arrange(p1,p2,p3,ncol=3)
 ```
 
 
-##Admin
+# Admin
+
+- Course runs 09:30 ~ 17:00 each day
+    + Room open fom 09:00 each day
+- Lunch provided 12:30 - 13:30 each day
+    + different room on the same campus, we'll take you there
+- No fixed coffee and tea breaks
+    + but you'll probably have noticed the coffee machine at the back
+- Please refrain from using the coffee machine when someone is lecturing
+    + you'll discover why when you use the machine!
+- Workshop dinner on Thursday night at Christ's College
+    + We assume you're coming unless you've told us otherwise
+    + Please let us know a.s.ap if you won't be coming!
+    
 
 
-# About the Course
+# About the Course - "Analysis of Cancer Genomes"
 
-- We will tell about '*best practice*' tools that we use in daily work as Bioinformaticians
 - You will (probably) not come away being an expert
 - We cannot teach you everything about NGS data
     + plus, it is a fast-moving field
+    + will cover a selection of tools / methods
 - Whole genome and exome DNA-seq only
     + much of the initial processing is the same for other assays
     + see our [previous summer school](http://bioinformatics-core-shared-training.github.io/cruk-bioinf-sschool/) for details of RNA- and ChIP-seq
 - However, we hope that you will
     + Understand how your data are processed
     + Be able to explore your data - no programming required
-    + Understand the issues
+    + Understand the issues and compromises involved in current methods
     + Communicate more effectively with the Bioinformaticians dealing with your data
     + Increase confidence with R and Bioconductor
     + Know where to get help
     + Be able to explore new technologies, methods, tools as they come out
     + Meet your colleagues from other CRUK institutes
-
-
-
+- All materials will be online after the course
+    + tell your colleagues, friends!
+    + you'll be able to take the data away with you
+- The software used will also be available to you
+    + more on this later
+    
+    
 # Course Outline
 
 ## Day 1
@@ -120,19 +137,22 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 ## Day 3
 
-
-- Issues with Somatic calling
-- Hands-on practice assessing Somatic calls
+- Theory of Somatic calling
+- Hands-on practice assessing and filtering Somatic calls
 - Annotating and prioritsing calls
 
 ## Day 4
 
-- Structural Variants
+- Structural Variants (SVs)
+- Methods for visualising SVs
+- Interpreting SVs
+- Complex rearrangements
 
 ## Day 5
 
 - Dealing with collections of genomes
-
+- Generating mutational signatures
+- Integrating different data types
 
 ## Disclaimer
 
@@ -146,15 +166,7 @@ If you haven't designed your experiment properly, then all the Bioinformatics we
 
 - We have some [materials](http://bioinformatics-core-shared-training.github.io/experimental-design/) you can look at
 
-## Also bear in mind..
 
-- No "*one-size fits all*" solution...
-
-    + Every dataset will have it's own quirks and artefacts
-    + You'll need to become familar with how to inspect your data
-    +     
-    
-    
 # About the data
 
 We will use publically-available datasets that you can take away with you at the end of the course
@@ -169,7 +181,24 @@ A breast-cancer cell-line on which we have data available and has been used as p
 - https://cansar.icr.ac.uk/cansar/cell-lines/HCC1143/copy_number_variation/
 - https://cghub.ucsc.edu/datasets/benchmark_download.html
 
+# Choice of software
 
+- Trade-off between what is easiest to use, and what would be used in practice
+    + focus on tools that enable you to explore the data
+    + mostly using R
+- No conflicts of interest
+    + we don't have any particular tools that we wish to plug
+  
+# Distribution of software 
 
-# About the software
+- When you return home, you'll probably want to try-out the tools on your own data
+- Installing software can be challenging, even for those with many years of experience
+- The [*Docker*](http://www.docker.com/) platform is becoming an increasingly-popular way of packaging and distributing software
+    + The Sanger institute have wrapped their genome analysis pipeline in a [docker container](https://github.com/cancerit/cgpbox)
+    + We have created one too for other software required for the course
 
+![](https://pbs.twimg.com/profile_images/378800000124779041/fbbb494a7eef5f9278c6967b6072ca3e_400x400.png)
+
+- On a Mac / Windows machine, you'll need to download the Docker software
+- After that it's just a single command to get all software you need
+    + in theory at least (!)
