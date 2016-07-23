@@ -198,14 +198,13 @@ A breast-cancer cell-line on which we have data available and has been used as p
 # Distribution of software 
 
 - When you return home, you'll probably want to try-out the tools on your own data
-- Installing software can be challenging, even for those with many years of experience
+- We'll be using RStudio, which hopefully most of you will already have
+- However, installing software can be challenging, even for those with many years of experience
 - The [*Docker*](http://www.docker.com/) platform is becoming an increasingly-popular way of packaging and distributing software
     + The Sanger institute have wrapped their genome analysis pipeline in a [docker container](https://github.com/cancerit/cgpbox); ***cgpbox***
     + We have created one too for other software required for the course; ***CRUK Docker***
 
 ![](https://pbs.twimg.com/profile_images/378800000124779041/fbbb494a7eef5f9278c6967b6072ca3e_400x400.png)
 
-- On your own Mac / Windows machine, you'll need to download the Docker software
-- After that it's just a single command to get all software you need
-    + in theory at least (!)
+
 - We'll go through this at the end of the course

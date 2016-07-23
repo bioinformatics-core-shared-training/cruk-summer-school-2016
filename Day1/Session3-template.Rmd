@@ -176,3 +176,11 @@ mybam.chr17[mybam.chr17 %over% mygene]
 ******
 ******
 ******
+
+
+```{r}
+
+
+
+```
+

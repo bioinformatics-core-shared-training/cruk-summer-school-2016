@@ -61,6 +61,8 @@ patients <- random_patients(100)
 
 
 ```{r }
+
+
 ```
 
 ******
@@ -77,6 +79,8 @@ patients <- random_patients(100)
 
 
 ```{r}
+
+
 ```
 
 
@@ -136,6 +140,9 @@ Otherwise, you can use the `[row,column]` notation.
 ******
 
 ```{r}
+
+
+
 ```
 
 
@@ -154,6 +161,7 @@ Otherwise, you can use the `[row,column]` notation.
 
 ```{r}
 
+
 ```
 
 
@@ -164,10 +172,6 @@ Otherwise, you can use the `[row,column]` notation.
 ### Exercise
 
 - Can you create a data frame of deceased patients with a 'count' < 0
-
-```{r echo=FALSE}
-patients[patients$Count <0 & patients$Died,]
-```
 
 
 ******

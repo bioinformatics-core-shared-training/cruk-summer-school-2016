@@ -272,7 +272,7 @@ We can access the columns of a data frame by either
 
 By column name is recommended, unless you can guarentee the columns will also be in the same order
 
-***TIP*** Use auto-complete with the <TAB> key to get the name of the column correct
+***TIP*** Use auto-complete with the ***TAB*** key to get the name of the column correct
 
 A vector (1-dimensional) is returned, the length of which is the same as the number of rows in the data frame. The vector could be stored as a variable and itself be subset or used in further calculations
 
@@ -297,6 +297,8 @@ summary(patients)
 ## Subsetting
 
 A data frame can be subset using square brackes`[]` placed after the name of the data frame. As a data frame is a two-dimensional object, you need a *row* and *column* index, or vector indices. 
+
+*Disclaimer 1*:- later in the course, we will see a slightly-nicer way of subsetting and filtering which will be useful in some circumstances
 
 ******
 ******
@@ -519,6 +521,9 @@ pie(c(Sky = 78, "Sunny side of pyramid" = 17, "Shady side of pyramid" = 5),
 - References..
     + [Introductory R course](http://cambiotraining.github.io/r-intro/)
     + [Quick-R](http://www.statmethods.net/graphs/index.html)
+    
+*Disclaimer 2*:- later in the course, we will see a slightly-nicer way of plotting
+
 
 ```{r}
 hist(patients$Height)
