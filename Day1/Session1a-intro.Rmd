@@ -13,12 +13,15 @@ BiocStyle::markdown()
 
 # Welcome!
 
+![](../images/you-are-here.png)
+
+We're based at [Cancer Research Uk Cambridge Institute](http://www.cruk.cam.ac.uk/), about 2 miles south of here
+
+![](http://www.cruk.cam.ac.uk/sites/default/files/styles/leading/public/basic-pages/CRUK-CI-external-autumn.jpg?itok=849P8Q53)    
 
 
 # Who's who 
-![](http://www.cruk.cam.ac.uk/sites/default/files/styles/leading/public/basic-pages/CRUK-CI-external-autumn.jpg?itok=849P8Q53)    
 
-We're based at [Cancer Research Uk Cambridge Institute](http://www.cruk.cam.ac.uk/), about 2 miles south of here
 
 ![](../images/whos-who.png)
 
@@ -91,7 +94,7 @@ grid.arrange(p1,p2,p3,ncol=3)
     + you'll discover why when you use the machine!
 - Workshop dinner on Thursday night at Christ's College
     + We assume you're coming unless you've told us otherwise
-    + Please let us know a.s.ap if you won't be coming!
+    + Please let us know ***a.s.a.p*** if you won't be coming!
     
 
 
@@ -117,7 +120,7 @@ grid.arrange(p1,p2,p3,ncol=3)
     + tell your colleagues, friends!
     + you'll be able to take the data away with you
 - The software used will also be available to you
-    + more on this later
+    + more on this soon
     
     
 # Course Outline
@@ -184,22 +187,25 @@ A breast-cancer cell-line on which we have data available and has been used as p
 # Choice of software
 
 - Trade-off between what is easiest to use, and what would be used in practice
+    + and what runs in a reasonable time
     + focus on tools that enable you to explore the data
     + mostly using R
+    
 - No conflicts of interest
     + we don't have any particular tools that we wish to plug
+- You'll probably have to decided what "looks best" on your own data
   
 # Distribution of software 
 
 - When you return home, you'll probably want to try-out the tools on your own data
 - Installing software can be challenging, even for those with many years of experience
 - The [*Docker*](http://www.docker.com/) platform is becoming an increasingly-popular way of packaging and distributing software
-    + The Sanger institute have wrapped their genome analysis pipeline in a [docker container](https://github.com/cancerit/cgpbox)
-    + We have created one too for other software required for the course
+    + The Sanger institute have wrapped their genome analysis pipeline in a [docker container](https://github.com/cancerit/cgpbox); ***cgpbox***
+    + We have created one too for other software required for the course; ***CRUK Docker***
 
 ![](https://pbs.twimg.com/profile_images/378800000124779041/fbbb494a7eef5f9278c6967b6072ca3e_400x400.png)
 
-- On a Mac / Windows machine, you'll need to download the Docker software
+- On your own Mac / Windows machine, you'll need to download the Docker software
 - After that it's just a single command to get all software you need
     + in theory at least (!)
-
+- We'll go through this at the end of the course
