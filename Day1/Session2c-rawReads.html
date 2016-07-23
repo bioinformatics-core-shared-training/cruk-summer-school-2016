@@ -397,7 +397,7 @@ gunzip ref_data/human_g1k_v37.fasta.gz</code></pre>
 bwa aln ../ref_data/hg19 sample.fq2 &gt; sample_2.sai
 </code></pre>
 <p>We need to make use of the <code>bwa sampe</code> command to create a human-readable format. We give it the files from the previous step and the fastq files.</p>
-<pre><code>bwa sampe ../ref_data/Homo_sapiens_assembly19.fasta sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam </code></pre>
+<pre><code>bwa sampe ../ref_data/hg19 sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam </code></pre>
 <p>The output is a <code>.sam</code> file that will be described in the next section</p>
 </div>
 
