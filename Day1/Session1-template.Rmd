@@ -41,14 +41,8 @@ random_patients <- function(n) {
 
 
 ```{r}
-patients <- random_patients(10)
+patients <- random_patients(100)
 ```
-
-```{r}
-View(patients)
-```
-
-
 
 ******
 ******
@@ -96,6 +90,7 @@ View(patients)
 
 ### Exercise
 - Make sure you can understand the behaviour of the following commands
+
 ******
 ******
 ******
@@ -113,6 +108,7 @@ patients[c(1,2,3),c(1,2,3)]
 
 ### Exercise
 - Make sure you can understand the behaviour of the following commands
+
 ******
 ******
 ******
