@@ -117,24 +117,18 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Understanding Sequencing Reads</h1>
 <h4 class="author"><em>Mark Dunning</em></h4>
-<h4 class="date"><em>Last modified: 20 Jul 2016</em></h4>
+<h4 class="date"><em>Last modified: 23 Jul 2016</em></h4>
 
 </div>
 
 
-<div id="fastqc-primer-and-trimming-reads" class="section level1">
-<h1><a name="fastqc"></a> Fastqc Primer and trimming reads</h1>
+<div id="fastqc-primer" class="section level1">
+<h1><a name="fastqc"></a> Fastqc Primer</h1>
 <p><em>(Acknowledgement to Ines De Santiago for her session at the <a href="http://bioinformatics-core-shared-training.github.io/cruk-bioinf-sschool/Day1/NGS_QC_inesdesantiago.pdf">previous summer school</a>)</em></p>
-<div id="working-directory" class="section level2">
-<h2>Working directory</h2>
-<pre><code>cd /home/participant/Course_Materials/Day1/</code></pre>
 <p><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a> from Babraham Bioinformatics Core has emerged as the standard tool for performing quality assessment on sequencing reads</p>
-<p>It can be run from the <strong><em>Terminal</em></strong> as follows;</p>
-<pre><code>fastqc sample.fq1</code></pre>
-<p>As a result, you should get two files in your working directory; <code>sample.fq1_fastqc.zip</code> and <code>sample.fq1_fastqc.html</code>. The <code>.zip</code> file contains all the metrics that <code>fastqc</code> computes, should you wish to perform extra manipulation and visualisation beyond what <code>fastqc</code> offers. The <code>html</code> file can be opened in a web browser. The easier way to see the output is to navigate to the current directory using a file explorer, and double-click on the file.</p>
 <p>The manual for <code>fastqc</code> is available <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/">online</a> and is very comprehensive; especially the parts which describe particular <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/">sections</a> of the report. The authors also run a <a href="https://sequencing.qcfail.com/">“QCfail”</a> blog which discusses some sequencing QC errors they have encountered and how they were diagnosed.</p>
 <p>A <em>“traffic light”</em> system is used to draw your attention to sections of the report that require further investigation. However, it is worth bearing in mind that <code>fastqc</code> is designed to be run on fastq files from any type of sequencing experiment and has no knowledge of the particular library preparation, or conditions that you are studying. It could be that you <em>expect</em> high levels of duplication or GC content. Always consider the nature of your study before taking any drastic action!</p>
-</div>
+<p>Also, <code>fastqc</code> will not actually <em>do</em> anything to your data. If you decide to trim or remove contamination for your samples, you will need to use another tool.</p>
 <div id="the-sections-of-a-fastqc-report" class="section level2">
 <h2>The sections of a <code>fastqc</code> report</h2>
 <ol style="list-style-type: decimal">
@@ -264,22 +258,27 @@ $(document).ready(function () {
 
 </div>
 <p>Described in detail in <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2896536/">Hansen et al. (2010)</a></p>
+</div>
+</div>
+<div id="running-fastqc" class="section level1">
+<h1>Running <code>fastqc</code></h1>
+<p><code>fastqc</code> can be run from the <strong><em>CRUK Docker</em></strong> as follows;</p>
+<pre><code>cd /home/participant/Course_Materials/Day1/
+fastqc sample.fq1</code></pre>
+<p>As a result, you should get two files in your working directory; <code>sample.fq1_fastqc.zip</code> and <code>sample.fq1_fastqc.html</code>. The <code>.zip</code> file contains all the metrics that <code>fastqc</code> computes, should you wish to perform extra manipulation and visualisation beyond what <code>fastqc</code> offers.</p>
+<p>The <code>html</code> file can be opened in a web browser. If you follow the link on the Desktop to <code>Course_Materials</code> you should be able to navigate to the folder <code>Day1/</code> and see the files we have created.</p>
 <hr />
 <hr />
 <hr />
 <div id="exercise" class="section level3">
 <h3>Exercise</h3>
 <ul>
-<li>View the <code>fastqc</code> report for our example file <code>sample.fq1</code>
-<ul>
-<li>see the start of this section for how to run the <code>fastqc</code> tool</li>
-</ul></li>
+<li>View the <code>fastqc</code> report for our example file <code>sample.fq1</code></li>
 <li>Are there any areas of concern?</li>
 </ul>
 <hr />
 <hr />
 <hr />
-</div>
 </div>
 </div>
 <div id="optional-advanced-section" class="section level1">
@@ -400,20 +399,6 @@ bwa aln ../ref_data/hg19 sample.fq2 &gt; sample_2.sai
 <p>We need to make use of the <code>bwa sampe</code> command to create a human-readable format. We give it the files from the previous step and the fastq files.</p>
 <pre><code>bwa sampe ../ref_data/Homo_sapiens_assembly19.fasta sample_1.sai sample_2.sai sample.fq1 sample.fq2 &gt; sample.sam </code></pre>
 <p>The output is a <code>.sam</code> file that will be described in the next section</p>
-</div>
-<div id="appendix" class="section level1">
-<h1><a name="appendix"></a> Appendix</h1>
-<p>For your reference, here is how the example files were created</p>
-<p>First, we download an example bam file from the 1000 genomes project</p>
-<pre><code>wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/other_exome_alignments/NA06984/exome_alignment/NA06984.mapped.illumina.mosaik.CEU.exome.20111114.bam</code></pre>
-<p>Then the file is <em>downsampled</em> to give a much reduced set of reads. The original file can be removed</p>
-<pre><code>java -jar $PICARD DownsampleSam I=NA06984.mapped.illumina.mosaik.CEU.exome.20111114.bam O=random.bam P=0.1 VALIDATION_STRINGENCY=SILENT
-
-rm NA06984.mapped.illumina.mosaik.CEU.exome.20111114.bam</code></pre>
-<p>For convenience, we filter the file to keep only reads that are properly paired. Then picard is used again to extract the fastq data from the file. As the original alignments were a mix of 68 and 76 bases, we trim all the reads to 68 bases to processing easier.</p>
-<pre><code>samtools view -f 0x02 -b random.bam &gt; paired.bam 
-
-java -jar $PICARD SamToFastq I=paired.bam F=sample.fq1 VALIDATION_STRINGENCY=SILENT F2=sample.fq2 R1_MAX_BASES=68 R2_MAX_BASES=68</code></pre>
 </div>
 
 
