@@ -79,14 +79,6 @@ Each package has its own landing page. e.g. http://bioconductor.org/packages/rel
 - Still need to use *command-line* to get things done
 - Developed by some of the leading R programmers
 
-R has an in-built help system. At the *console*, you can type `?` followed by the name of a function. This will bring-up the documentation for the function; which includes the expected inputs (*arguments*), the output you should expect from the function and some use-cases.
-
-```{r eval=FALSE}
-?mean
-```
-
-More-detailed information on particular packages is also available (see below)
-
 The **Packages** tab in the bottom-right panel of RStudio lists all packages that you currently have installed. Clicking on a package name will show a list of functions that available once that package has been loaded. The `library` function is used to load a package and make it's functions / data available in your current R session. *You need to do this every time you load a new RStudio session*. 
 
 
@@ -112,6 +104,17 @@ biocLite("affy")
 A package may have several *dependancies*; other R packages from which it uses functions or data types (re-using code from other packages is strongly-encouraged). If this is the case, the other R packages will be located and installed too.
 
 So long as you stick with the same version of R, you won't need to repeat this install process.
+
+Bioconductor packages also come with a ***vignette***
+
+- Often describing the workflow of using the package, and particular use-cases
+
+R has an in-built help system. At the *console*, you can type `?` followed by the name of a function. This will bring-up the documentation for the function; which includes the expected inputs (*arguments*), the output you should expect from the function and some use-cases.
+
+```{r eval=FALSE}
+?mean
+```
+
 
 
 ## About the R markdown format
@@ -154,7 +157,7 @@ The "markdown" file is a template used to generate a report (in pdf, html or doc
 
 ## The practical
 
-*** Working Directory***
+***Working Directory***; Session -> Set Working Directory -> Choose Directory
 
 ```{}
 /home/participant/Course_Materials/Day1/

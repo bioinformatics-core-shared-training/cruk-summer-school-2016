@@ -209,9 +209,6 @@ $(document).ready(function () {
 <li>Still need to use <em>command-line</em> to get things done</li>
 <li>Developed by some of the leading R programmers</li>
 </ul>
-<p>R has an in-built help system. At the <em>console</em>, you can type <code>?</code> followed by the name of a function. This will bring-up the documentation for the function; which includes the expected inputs (<em>arguments</em>), the output you should expect from the function and some use-cases.</p>
-<pre class="r"><code>?mean</code></pre>
-<p>More-detailed information on particular packages is also available (see below)</p>
 <p>The <strong>Packages</strong> tab in the bottom-right panel of RStudio lists all packages that you currently have installed. Clicking on a package name will show a list of functions that available once that package has been loaded. The <code>library</code> function is used to load a package and make it’s functions / data available in your current R session. <em>You need to do this every time you load a new RStudio session</em>.</p>
 <pre class="r"><code>library(beadarray)</code></pre>
 <p>There are functions for installing packages within R. If your package is part of the main <strong>CRAN</strong> repository, you can use <code>install.packages</code></p>
@@ -222,6 +219,12 @@ $(document).ready(function () {
 biocLite(&quot;affy&quot;)</code></pre>
 <p>A package may have several <em>dependancies</em>; other R packages from which it uses functions or data types (re-using code from other packages is strongly-encouraged). If this is the case, the other R packages will be located and installed too.</p>
 <p>So long as you stick with the same version of R, you won’t need to repeat this install process.</p>
+<p>Bioconductor packages also come with a <strong><em>vignette</em></strong></p>
+<ul>
+<li>Often describing the workflow of using the package, and particular use-cases</li>
+</ul>
+<p>R has an in-built help system. At the <em>console</em>, you can type <code>?</code> followed by the name of a function. This will bring-up the documentation for the function; which includes the expected inputs (<em>arguments</em>), the output you should expect from the function and some use-cases.</p>
+<pre class="r"><code>?mean</code></pre>
 </div>
 <div id="about-the-r-markdown-format" class="section level2">
 <h2>About the R markdown format</h2>
@@ -267,7 +270,7 @@ biocLite(&quot;affy&quot;)</code></pre>
 </div>
 <div id="the-practical" class="section level2">
 <h2>The practical</h2>
-<p>*** Working Directory***</p>
+<p><strong><em>Working Directory</em></strong>; Session -&gt; Set Working Directory -&gt; Choose Directory</p>
 <pre><code>/home/participant/Course_Materials/Day1/</code></pre>
 <p><strong><em>Template file</em></strong></p>
 <pre><code>/home/participant/Course_Materials/Day1/Session1-template.Rmd</code></pre>
