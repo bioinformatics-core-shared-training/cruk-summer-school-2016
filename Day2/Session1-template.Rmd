@@ -48,6 +48,22 @@ table(geno(hapmap.calls)$GT[,1], geno(hapmap.calls)$GT[,2])
 ```
 
 
+******
+******
+******
+
+### Exercise
+
+- Find the variants that are called Heterozygous in all three samples
+- Create a new `.vcf` file containing just these heterozygous variants
+
+******
+******
+******
+
+
+
+
 ## Variant Locations
 
 ```{r}
