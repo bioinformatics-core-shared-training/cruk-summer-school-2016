@@ -32,6 +32,11 @@ summary(info(hapmap.calls)$NS)
 hist(info(hapmap.calls)$DP)
 ```
 
+```{r}
+enoughDepth <- which(info(hapmap.calls)$DP > 25)
+writeVcf(hapmap.calls[enoughDepth], filename = "combined.chr20.subset.freebayes.highDepth.vcf")
+```
+
 
 ## Accessing genotypes
 
