@@ -144,6 +144,13 @@ table(all.locs$LOCATION)
 
 ```{r}
 library(BSgenome.Hsapiens.UCSC.hg19)
+hg19 <-BSgenome.Hsapiens.UCSC.hg19
+getSeq(hg19, GRanges("chr20", IRanges(76960,76962)))
+translate(getSeq(hg19, GRanges("chr20", IRanges(76960,76962))))
+```
+
+
+```{r}
 coding.pred <- predictCoding(NA12878.calls, txdb, seqSource=Hsapiens)
 ```
 
