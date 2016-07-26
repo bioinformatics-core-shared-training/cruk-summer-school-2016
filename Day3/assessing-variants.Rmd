@@ -9,6 +9,8 @@ output: html_document
 
 The purpose of this practical is to get you familiar with visualising SNV calls in IGV, and to assess whether they are genuine calls or technical artefacts. 
 
+You might find this [set of hints](https://rawgit.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/Day3/assessing-variants-in-igv.html) useful when assessing the calls.
+
 ## Preparation
 
 - Load the Tumour `.bam` file `/home/participant/Course_Materials/data/cell-line/HCC1143.mix1.n20t80.reheader.bam`
