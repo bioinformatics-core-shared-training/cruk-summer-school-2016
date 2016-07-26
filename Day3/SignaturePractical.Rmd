@@ -1,0 +1,141 @@
+---
+title: "FurtherSNVThings"
+author: "Andy Lynch"
+date: "21 July 2016"
+output: html_document
+---
+
+# Mutational contexts
+
+## Preliminaries
+
+First we will load the libraries that we are going to require. These are _BSgenome.Hsapiens.UCSC.hg19_ (which contains the reference genome from which we are going to extract contexts), _SomaticSignatures_ (which has the context-extracting functions), and _deconstructSigs_ (which does the signature deconstruction work).
+
+```{r}
+suppressWarnings(suppressMessages(library(SomaticSignatures,quietly=T,warn.conflicts = F)))
+suppressWarnings(suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19,quietly=T,warn.conflicts = F)))
+suppressWarnings(suppressMessages(library(deconstructSigs,quietly=T,warn.conflicts = F)))
+```
+
+
+## Loading in data
+
+Now read in the vcf file, and keep just the autosomes and sex chromosomes (which we have to rename to match the bioconductor reference genome). Note that on my machine at least, I have to change all references to FTX in the vcf file to something else (I chose FUX), for the function to work. __I have no idea why!__
+
+```{r}
+vcf<-readVcfAsVRanges("HCC1143_vs_HCC1143_BL.flagged.muts.edited.vcf","hg19",use.names=T)
+vcf<-keepSeqlevels(vcf,c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X","Y"))
+seqlevels(vcf)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY")
+```
+
+The VRanges object contains two rows for each SNV (one for the control and one for the tumour), so we just take the bottom half. We will also remove anything failing the soft filters.
+
+```{r}
+vcf<-vcf[92284:184566]
+vcf<-vcf[apply(vcf@softFilterMatrix,1,prod)==1]
+```
+
+## Get mutational contexts
+
+We can obtain the mutational context for each SNV quite conveniently.
+
+```{r}
+mc<-mutationContext(vcf,BSgenome.Hsapiens.UCSC.hg19)
+```
+
+
+
+## Annoying data manipulation
+
+However the context info is stored as two variables: the alteration in the form "XY", and the context in the form "W.Z". We will now reformat the contexts to match the signature data (i.e. putting them in the form "W[X>Y]Z"). This we do using the "subseq" command to extract the characters we want, and "paste" to paste them together in the form we want. See ?subseq and ?paste for details.
+
+```{r}
+SMT<-paste(
+  subseq(elementMetadata(mc)$context,1,1),
+  rep("[",length(mc)),
+  subseq(elementMetadata(mc)$alteration,1,1),
+  rep(">",length(mc)),
+  subseq(elementMetadata(mc)$alteration,2,2),
+  rep("]",length(mc)),
+  subseq(elementMetadata(mc)$context,3,3),
+  sep="")
+```
+
+To ensure that the ordering of levels matches the signatures, we will turn this object into a vector.
+
+```{r}
+SMT<-factor(SMT,levels=colnames(signatures.cosmic))
+```
+
+
+Now we need to tabulate the mutation/context combinations and shape it for the package that follows. Apologies that this is inelegant.
+
+```{r}
+SMTdf<-as.data.frame(t(matrix(table(SMT))))
+colnames(SMTdf)<-colnames(signatures.cosmic)
+rownames(SMTdf)<-1
+```
+
+## Signatures
+
+Before going further we can have a look at the mutation numbers, ignoring contexts 
+
+```{r}
+boxplot(unlist(SMTdf)~sapply(colnames(SMTdf),substr,2,6))
+```
+
+Having seen that transitions are dominating, we can pull out the signatures.
+
+```{r}
+sigs<-whichSignatures(tumor.ref =SMTdf, 
+                                signatures.ref = signatures.cosmic, 
+                                sample.id = 1, contexts.needed = TRUE)
+
+sigs$weight
+
+barplot(unlist(sigs$weight),las=2,col="red",names=paste("sig",1:30))
+```
+
+
+
+Which signature dominates? Compare to the list at http://cancer.sanger.ac.uk/cosmic/signatures and decide whether this is as expected.
+
+
+# MNVs
+
+We will now take a quick look at the multiple nucleotide variants in the vcf. These manifest as consecutive bases represented in consecutive rows of the file.
+
+## Identify starts of runs of consecutive entries.
+
+The _diff_ command reports the difference between consecutive entries in the file. Consecutive bases will have locations that differ by 1. The second line here ensures that only the first entry in a run is returned.  
+
+```{r}
+MNVindex<-which(diff(ranges(mc)@start)==1)
+MNVindex<-MNVindex[-(which(diff(MNVindex)==1)+1)]
+```
+
+## Identify mutations
+
+We can extract the sequences of each run. Note that we can't simply paste together the mutations as reported, because strand information may be lost. e.g. if we have CG>TA both positions will be reported as C>T. 
+
+```{r}
+MNV<-rep("",275)
+for(i in 1:275){
+mnvlength<-max(which(ranges(mc)@start[MNVindex[i]+1:100]-ranges(mc)@start[MNVindex[i]]==1:100))  
+MNV[i]<-paste(paste(mc@ref[MNVindex[i]+(0:mnvlength)],collapse=""),">",paste(mc@alt[MNVindex[i]+(0:mnvlength)],collapse=""),collapse="",sep="")
+}
+
+```
+
+## Look at the MNVs
+
+Note that we haven't collapsed equivalent mutations (e.g. TT>AA and AA>TT) into one entry for this object. Which MNVs are most prevalent? Of what might they be indicative?
+
+```{r}
+tail(sort(table(MNV)))
+```
+
+## Credulity test
+
+One MNV appears to be TGTG>CCCT. It is located at chr5:134119386-134119389. Look at this area in IGV and decide whether you believe it.
+
