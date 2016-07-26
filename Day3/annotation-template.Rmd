@@ -1,0 +1,224 @@
+---
+title: "Filtering with dplyr"
+output: html_document
+---
+
+
+```{r message=FALSE}
+library(VariantAnnotation)
+library(dplyr)
+```
+
+
+```{r}
+anno <- read.csv("HCC1143_vs_HCC1143_BL.flagged.muts.annovar.hg19_multianno.csv")
+anno <- tbl_df(anno)
+anno
+```
+
+
+### select
+
+
+```{r}
+select(anno, Func.refGene)
+```
+
+
+```{r}
+select(anno, Func.refGene,ExonicFunc.refGene)
+```
+
+
+```{r}
+select(anno, cytoBand:X1000g2015aug_all)
+```
+
+
+```{r}
+select(anno, -End)
+```
+
+
+```{r}
+select(anno, cytoBand:X1000g2015aug_all,-snp129,-AAChange.refGene)
+```
+
+
+```{r}
+select(anno, contains("1000g"))
+```
+
+*******
+*******
+*******
+
+Exercise
+
+- Display the columns `Func.refGene` to `AAChange.refGene` 
+    + you could try the convenience functions `contains` `ends_with` to do this, or using the `:` notation
+- Now remove the column `GeneDetail.refGene`
+- Append the chromosome start and end position columns
+
+*******
+*******
+*******
+
+
+
+### `filter`
+
+
+```{r}
+filter(anno, Chr ==1)
+```
+
+```{r}
+filter(anno, Func.refGene == "exonic")
+```
+
+```{r}
+filter(anno, Func.refGene == "exonic", Chr == 1, ExonicFunc.refGene != "synonymous SNV", ExonicFunc.refGene != "unknown")
+```
+
+
+```{r}
+grep("breast",anno$cosmic70)
+grepl("breast",anno$cosmic70)[1:10]
+```
+
+
+```{r}
+filter(anno, grepl("breast",cosmic70))
+```
+
+```{r}
+filter(anno, is.na(snp129))
+```
+
+
+```{r}
+filter(anno, !is.na(gwasCatalog))
+```
+
+
+```{r}
+filter(anno, is.na(X1000g2015aug_all) | X1000g2015aug_all < 0.05)
+```
+
+
+
+*******
+*******
+*******
+
+Exercise
+
+- Find which variants are not in segmental duplications
+- Find all variants that are in TP53 and exonic
+- Find variants with greater than 0.1 frequency in the Exome Sequencing Project
+    + column `esp6500si_all`
+
+*******
+*******
+*******
+
+## Combining commands with "pipes"
+
+
+
+```{r}
+filter(anno, esp6500si_all > 0.1) %>% 
+  select(Chr:Alt, cosmic70)
+```
+
+
+*******
+*******
+*******
+
+Exercise
+
+- Find which variants are present in the GWAS catalog
+- Use `select` to print the chromsome, start, end, Gene name and 1000 genomes frequency and GWAS catalogue details for these variants
+- Use a "pipe" command to write your answer
+
+```{r echo=FALSE}
+
+
+```
+
+
+*******
+*******
+*******
+
+
+## Adding extra information to the table
+
+
+
+```{r}
+mutate(anno, Chr = paste("Chr", Chr,sep=""))
+mutate(anno, Chr = paste0("Chr", Chr))
+
+```
+
+```{r}
+anno <- mutate(anno, Chr = paste("Chr", Chr,sep=""))
+```
+
+
+```{r}
+vcf <- readVcf("HCC1143_vs_HCC1143_BL.flagged.muts.vcf","hg19")
+```
+
+
+```{r}
+anno.extra <- mutate(anno, FILTER = mcols(rowRanges(vcf))$FILTER)  
+anno.extra
+```
+
+
+
+## Putting it together..
+
+We now have all the `dplyr` operations in place to create a filtering pipeline. Firstly, probably want to use only those variants that passed the filters employed by caveman.
+
+```{r}
+filter(anno.extra, FILTER=="PASS")
+```
+
+
+```{r}
+filter(anno.extra, FILTER=="PASS") %>% 
+  filter(is.na(genomicSuperDups)) %>% 
+  filter(is.na(X1000g2015aug_all) | X1000g2015aug_all < 0.05) %>% 
+  filter(is.na(esp6500si_all) | esp6500si_all < 0.05) %>% 
+  filter(Func.refGene == "exonic") %>% 
+  filter(ExonicFunc.refGene != "synonymous SNV")
+```
+
+
+```{r}
+filter(anno.extra, FILTER=="PASS") %>% 
+  filter(is.na(genomicSuperDups)) %>% 
+  filter(is.na(X1000g2015aug_all) | X1000g2015aug_all < 0.05) %>% 
+  filter(is.na(esp6500si_all) | esp6500si_all < 0.05) %>% 
+  filter(Func.refGene == "exonic") %>% 
+  filter(ExonicFunc.refGene != "synonymous SNV") %>% 
+  filter(grepl("D", ljb23_sift)) %>% 
+  select(Chr:Alt, Gene.refGene,ExonicFunc.refGene,cosmic70,ljb23_sift) 
+```
+
+
+```{r}
+filter(anno.extra, FILTER=="PASS") %>% 
+  filter(is.na(genomicSuperDups)) %>% 
+  filter(is.na(X1000g2015aug_all) | X1000g2015aug_all < 0.05) %>% 
+  filter(is.na(esp6500si_all) | esp6500si_all < 0.05) %>% 
+  filter(Func.refGene == "exonic") %>% 
+  filter(ExonicFunc.refGene != "synonymous SNV") %>% 
+  filter(grepl("D", ljb23_sift)) %>% 
+  write.csv("HCC1143_vs_HCC1143_BL.flagged.muts.annovar.hg19_multianno.filtered.csv")
+```
