@@ -68,13 +68,13 @@ docker pull quay.io/wtsicgp/cgp_in_a_box
 
 3) Copy the files you want to analyse to a particular directory
 
-4) Create a configuration file to define the location of your files, and their corresponding file names
+4) Create a configuration file, `run.params.template` to define the location of your files, and their corresponding file names
     - You can use [this template](https://rawgit.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/Day4/run.params.template)
     
 5) Replace `YOUR_DIRECTORY` with the path to the directory in the following command, and press enter
 
 ```{}
-docker run --rm -v YOUR_DIRECTORY:/datastore -v YOUR_DIRECTORY/run.params:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box
+docker run --rm -v YOUR_DIRECTORY:/datastore -v YOUR_DIRECTORY/run.params.template:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box
 ```
 
 

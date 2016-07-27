@@ -178,13 +178,13 @@ chmod 777 cgp-run</code></pre>
 <li><p>Download the latest version of the pipeline</p>
 <pre><code>docker pull quay.io/wtsicgp/cgp_in_a_box</code></pre></li>
 <li><p>Copy the files you want to analyse to a particular directory</p></li>
-<li>Create a configuration file to define the location of your files, and their corresponding file names
+<li>Create a configuration file, <code>run.params.template</code> to define the location of your files, and their corresponding file names
 <ul>
 <li>You can use <a href="https://rawgit.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/Day4/run.params.template">this template</a></li>
 </ul></li>
 <li><p>Replace <code>YOUR_DIRECTORY</code> with the path to the directory in the following command, and press enter</p></li>
 </ol>
-<pre><code>docker run --rm -v YOUR_DIRECTORY:/datastore -v YOUR_DIRECTORY/run.params:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box</code></pre>
+<pre><code>docker run --rm -v YOUR_DIRECTORY:/datastore -v YOUR_DIRECTORY/run.params.template:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box</code></pre>
 <ol start="6" style="list-style-type: decimal">
 <li>Be prepared to wait…</li>
 </ol>
