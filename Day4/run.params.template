@@ -1,0 +1,19 @@
+#!/bin/bash
+
+: "Required parameters
+    - NAME_*   : should match that in the BAM file headers, primarily for naming of folders
+    - *_MT     : Refers to the Tumour sample
+    - *_WT     : Refers to the Wildtype/normal sample
+    - TIMEZONE : Change this if you want the web tools to use your local timezone
+                 This will give you the list:
+                   perl -MDateTime -e 'print join "\n", DateTime::TimeZone->all_names;'
+ "
+
+NAME_MT='TUMOUR'
+NAME_WT='NORMAL'
+BAM_MT='/datastore/TUMOUR.bam'
+BAM_WT='/datastore/NORMAL.bam'
+
+TIMEZONE='Europe/London'
+
+

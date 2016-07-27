@@ -1,0 +1,81 @@
+---
+title: "CGP Docker Demo"
+author: "Mark Dunning"
+date: "27 July 2016"
+output: html_document
+---
+
+# Running the Cancer Genome Project pipeline
+
+The Sanger have made their cancer genome analysis pipeline available as a [Docker](www.docker.com) container. 
+
+It uses some of the tools that we have introduced in this course
+
+- caveman
+    + to call somatic SNVs
+- Ascat
+    + to call copy number alterations
+- BRASS
+    + to call Structural Variations
+
+plus some we haven't mentioned
+
+- pindel
+    + for short insertions / deletions (indels)
+- vagrent
+    + for annotation
+  
+A configuration file is used to control the pipeline. Here we grab an example file :-
+
+```{}
+cd /home/participant/Desktop/Course_Materials/
+wget https://raw.githubusercontent.com/cancerit/cgpbox/master/examples/run.params
+```
+
+The example configuration file contains steps to download some example data. The example dataset used is a "downsampled" version of the HCC1143 cell-line that we have been following in the course.
+
+We need to define a directory where our output results are going to be produced. The directory will need to have permissions for other users to write to it
+
+```{}
+mkdir cgp-run
+chmod 777 cgp-run
+```
+
+The command required to run the pipeline is as follows:-
+
+```{}
+docker run --rm -v /home/participant/Course_Materials/cgp-run:/datastore -v /home/participant/Course_Materials/run.params:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box
+```
+
+`docker run` :- command required to run a docker container
+
+`-v /home/participant/Course_Materials/cgp-run:/datastore` :- allows the directory we created to be visible to the container
+
+`-v /home/participant/Course_Materials/run.params:/datastore/run.params` :- allows the configuration file to be visible to the container
+
+`quay.io/wtsicgp/cgp_in_a_box` :- the name of the container we want to run
+
+# Running on the pipeline on your own data
+
+1) If you have a Mac or Windows machine you need to download the [Docker toolbox](https://www.docker.com/products/docker-toolbox) for your particular OS.
+
+- Installing and running the software you download should allow get you to a Unix prompt, similar to we have been using in the course
+
+2) Download the latest version of the pipeline
+```{}
+docker pull quay.io/wtsicgp/cgp_in_a_box
+```
+
+3) Copy the files you want to analyse to a particular directory
+
+4) Create a configuration file to define the location of your files, and their corresponding file names
+    - You can use [this template](https://rawgit.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/Day4/run.params.template)
+    
+5) Replace `YOUR_DIRECTORY` with the path to the directory in the following command, and press enter
+
+```{}
+docker run --rm -v YOUR_DIRECTORY:/datastore -v YOUR_DIRECTORY/run.params:/datastore/run.params quay.io/wtsicgp/cgp_in_a_box
+```
+
+
+6) Be prepared to wait...
