@@ -4,7 +4,7 @@ options(repos = c("CRAN" = "http://cran.ma.imperial.ac.uk"))
 biocLite(c("Biostrings", "biomaRt", "BSgenome","QDNAseq","exomeCopy",
         "rtracklayer", "ggbio", "Gviz","RColorBrewer","org.Hs.eg.db",
         "TxDb.Hsapiens.UCSC.hg19.knownGene","BSgenome.Hsapiens.UCSC.hg19",
-        "wakefield","VariantAnnotation","limma","dplyr","ggplot2","tidyr","readr","GenVisR","circlize","RColorBrewer","circlize", "InteractionSet","mclust","devtools","SomaticSignatures","deconstructSigs"))
+        "wakefield","VariantAnnotation","limma","dplyr","ggplot2","tidyr","readr","GenVisR","circlize","RColorBrewer","circlize", "InteractionSet","mclust","devtools","SomaticSignatures","deconstructSigs","COSMIC.76"))
         
 library(devtools)
 install_github("Crick-CancerGenomics/ascat/ASCAT")
