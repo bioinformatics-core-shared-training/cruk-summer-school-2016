@@ -26,6 +26,8 @@ show_answers<-FALSE
     
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(Hint: How many breaks are there? Consider both reads that overlap the break and those that span the break.)*
 
+*Advanced: Can you sketch how reads might overlap translocations?*
+
 ******
 
 ##Methods for calling SVs
@@ -165,12 +167,14 @@ SVbedpe_filtered<-SVbedpe_filtered[!(SVbedpe_filtered$svclass=="deletion"&SVbedp
 SVbedpe_filtered<-SVbedpe_filtered[!(SVbedpe_filtered$svclass=="tandem-duplication"&SVbedpe_filtered$copynumber_flag==0),] #remove dups not near CN changepoint
 ```
 
+*Advanced: In the Day 4 directory you will also find SV calls from another caller, MANTA (somaticSV.bedpe). Can you compute the overlap between callers? Which is better?*
+
 ******
 
 ##The functional consequences of SVs
 [Lecture 4](lecture4.pdf)
 
-###Exercise 5: Annotating your SVs
+###Exercise 4: Annotating your SVs
 1. Manually (using pen and paper) reconstruct the following set of breakpoints into a single rearrangement event:
     + 2:47676199	+	2:50629634	+
     + 2:49437116	-	2:47678469	-
@@ -204,12 +208,15 @@ putative_fusions[,c(12,28,31,34,35,37,40,43,44)]
 
 ```
 
+*Advanced: What protein domains are included in these fusions?*
+
+
 ******
 
 ##Complex rearrangements
 [Lecture 5](lecture5.pdf)
 
-###Exercise 6: Characterising and annotating the HCC1143 double minute chromosome
+###Exercise 5: Characterising and annotating the HCC1143 double minute chromosome
 1. This sample contains a double minute chromosome. Which chromosomes are likely to make up this event? Plot a circos plot of the SVs explaining the double minute. 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(Hint: use the [SKY karyotyping](http://www.pawefish.path.cam.ac.uk/BreastCellLineDescriptions/HCC1143.html) of this cell-line to assist in your search.)*
@@ -254,6 +261,7 @@ genes_in_dmin<-subsetByOverlaps(cgcranges,dminbb)
 unique(mcols(genes_in_dmin)[,1])
 ```
 
+*Advanced: Can you find evidence of chromothripsis in the SVs or copy-number profiles? Use the criteria on the lecture slides to assist*
 
 
 
