@@ -79,3 +79,35 @@ docker run --rm -v YOUR_DIRECTORY:/datastore -v YOUR_DIRECTORY/run.params.templa
 
 
 6) Be prepared to wait...
+
+
+# Running the CRUK docker container
+
+We have packaged some of the command-line tools used in the course as a Docker container
+
+- [`samtools`](http://www.htslib.org/)
+- [`fastqc`](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+- [`freebayes`](https://github.com/ekg/freebayes)
+
+Plus some extra ones that you might find useful:-
+
+- [`bedtools`](http://bedtools.readthedocs.io/en/latest/)
+- [`picard`](https://broadinstitute.github.io/picard/)
+- [`platypus`](http://www.well.ox.ac.uk/platypus)
+- [`manta`](https://github.com/Illumina/manta)
+- [`cutadapt`](http://cutadapt.readthedocs.io/en/stable/guide.html)
+- [`fastx-toolkit`](http://hannonlab.cshl.edu/fastx_toolkit/)
+
+
+```{}
+docker pull markdunning/summer-school2016
+```
+
+To connect the docker container to a directory on your hard drive you have to use the `-v` argument, specifying a directory on your hard drive. This directory will get mapped to the directory `/home/participant/Course_Materials` in the docker container. 
+
+*N.B. this is the command that you have been running when you click the "**CRUK Docker**" link on the Desktop during the course*
+
+```{}
+docker run -ti -v YOUR_DIRECTORY:/home/participant/Course_Materials markdunning/summer-school2016 /bin/bash
+```
+

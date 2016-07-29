@@ -189,6 +189,28 @@ chmod 777 cgp-run</code></pre>
 <li>Be prepared to wait…</li>
 </ol>
 </div>
+<div id="running-the-cruk-docker-container" class="section level1">
+<h1>Running the CRUK docker container</h1>
+<p>We have packaged some of the command-line tools used in the course as a Docker container</p>
+<ul>
+<li><a href="http://www.htslib.org/"><code>samtools</code></a></li>
+<li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/"><code>fastqc</code></a></li>
+<li><a href="https://github.com/ekg/freebayes"><code>freebayes</code></a></li>
+</ul>
+<p>Plus some extra ones that you might find useful:-</p>
+<ul>
+<li><a href="http://bedtools.readthedocs.io/en/latest/"><code>bedtools</code></a></li>
+<li><a href="https://broadinstitute.github.io/picard/"><code>picard</code></a></li>
+<li><a href="http://www.well.ox.ac.uk/platypus"><code>platypus</code></a></li>
+<li><a href="https://github.com/Illumina/manta"><code>manta</code></a></li>
+<li><a href="http://cutadapt.readthedocs.io/en/stable/guide.html"><code>cutadapt</code></a></li>
+<li><a href="http://hannonlab.cshl.edu/fastx_toolkit/"><code>fastx-toolkit</code></a></li>
+</ul>
+<pre><code>docker pull markdunning/summer-school2016</code></pre>
+<p>To connect the docker container to a directory on your hard drive you have to use the <code>-v</code> argument, specifying a directory on your hard drive. This directory will get mapped to the directory <code>/home/participant/Course_Materials</code> in the docker container.</p>
+<p><em>N.B. this is the command that you have been running when you click the “<strong>CRUK Docker</strong>” link on the Desktop during the course</em></p>
+<pre><code>docker run -ti -v YOUR_DIRECTORY:/home/participant/Course_Materials markdunning/summer-school2016 /bin/bash</code></pre>
+</div>
 
 
 
