@@ -1,0 +1,586 @@
+---
+title: "Somatic SNV Filtering and Assessment"
+author: "Matt Eldridge"
+date: 'July 2016'
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+    logo: CRUK_Cambridge_Institute.png
+    css: SNV_filtering.css
+---
+
+
+```{r include=FALSE}
+library(dplyr)
+library(tidyr)
+library(highcharter)
+library(ggplot2)
+library(DT)
+source("plots.R")
+```
+
+
+## Outline
+
+- What factors complicate somatic SNV calling and why is filtering necessary?
+
+- Metric-based approach to filtering false positives
+
+- Benchmarks for assessing SNV calling and filtering
+
+- CaVEMan filters
+
+
+## Several factors complicate somatic SNV calling
+
+- Technical bias
+
+- Sequencing error
+
+- Alignment artefacts
+
+- Matched normal DNA contaminated with cancer DNA
+    - adjacent normal tissue may contain residual disease or early tumour-initiating somatic mutations
+    - circulating tumour DNA in blood normals
+
+- Low cellularity (tumour DNA content)
+
+- Intra-tumour heterogeneity in which multiple tumour cell populations (subclones) exist
+- Aneuploidy
+- Unbalanced structural variation (deletions, duplications, etc.)
+
+[Mwenifumbo & Marra, Nat Rev Genet. 2013](http://www.ncbi.nlm.nih.gov/pubmed/23594910)
+
+
+## Tumour heterogeneity
+
+Normal **germline SNPs** have expected allele frequencies (AF) of 0 (homozygous reference), 0.5 (heterozygous variant) and 1.0 (homozygous variant)
+
+**Somatic SNVs** typically exist at a continuous range of variant allele frequencies
+-- mutations in minor subclones may have very low AF and be difficult to detect at 50-fold coverage
+
+```{r echo=FALSE}
+
+allele_fractions <- read.delim("HCC1143.allele_fractions.txt",
+                               stringsAsFactors = FALSE, check.names = FALSE)
+
+data <- list(af = allele_fractions %>% unlist(use.names = FALSE))
+
+densityPlot(
+  data,
+  width = 800,
+  height = 400,
+  xLabel = "Variant allele frequency",
+  showInLegend = FALSE,
+  fillOpacity = 0.4,
+  tooltipDigits = 2
+)
+```
+
+
+## Sequencing error
+
+- Base qualities drop off toward ends of reads on Illumina sequencing platform, errors in base calls more likely
+
+- <span class="blue">**Filter**: *minimum base quality for variant alleles*</span>
+
+- <span class="blue">**Filter**: *no variant alleles found in first 2/3 of a read in position with low coverage*</span>
+
+
+## Low base qualities for variant alleles toward ends of reads {.flexbox .vcenter}
+
+```{r echo=FALSE, out.width = 800, out.height = 480, fig.retina = NULL}
+knitr::include_graphics("sequencing_error.png")
+```
+
+
+## Technical bias
+
+- Duplicate reads
+    - PCR amplification during library construction introduces duplicate reads
+    - Bioinformatic tools identify likely PCR duplicates based on aligned start positions of both ends of a read pair
+
+- <span class="blue">**Filter**: *Mark duplicate reads and exclude from SNV calling*</span>
+
+<br>
+
+- Strand bias
+    - Calls supported mainly by reads aligning to one strand may also be PCR artefacts
+
+- <span class="blue">**Filter**: *variant alleles in reads aligning in one direction only*</span>
+
+
+## Strand bias {.flexbox .vcenter}
+
+```{r echo=FALSE, out.width = 800, out.height = 480, fig.retina = NULL}
+knitr::include_graphics("strand_bias.png")
+```
+
+
+## Technical bias
+
+- GC bias
+    - Stretches of high GC or high AT content tend to be under-represented leading to uneven coverage across the genome
+    - Poor confidence in calls at these low coverage regions as germline SNVs more likely to be mistaken for somatic SNVs due to inadequate sampling in the matched normal
+
+- <span class="blue">**Filter**: *minimum read depth at variant position*</span>
+
+- <span class="blue">**Filter**: *minimum number of reads supporting variant call*</span>
+
+
+## Alignment issues
+
+Alignment issues are common source of false positive SNV calls
+
+- Missing sequence in the reference genome causes misalignments, usually with mismatches
+    - <span class="blue">**Filter**: *use decoy sequence from 1000 Genomes project*</span>
+
+<div style="line-height: 50%;"><br></div>
+
+- Assembly in region around variant may differ from the the reference sequence causing incorrect alignments, e.g. indels, structural rearrangements
+    - <span class="blue">**Filter**: *variants supported by reads with many mismatches*</span>
+    - <span class="blue">**Filter**: *variants within or close to germline indels*</span>
+    - <span class="blue">**Filter**: *variant position always toward beginning/end of alignment*</span>
+
+
+## Missing sequence from reference genome assembly {.flexbox .vcenter}
+
+```{r echo=FALSE, out.width = 800, out.height = 500, fig.retina = NULL}
+knitr::include_graphics("missing_reference_sequence.png")
+```
+
+
+## Problematic alignment around indels {.flexbox .vcenter}
+
+```{r echo=FALSE, out.width = 800, out.height = 500, fig.retina = NULL}
+knitr::include_graphics("indel_alignment_issues.png")
+```
+
+## Alignment issues
+
+- Repetitive regions in the genome cause difficulties for alignment tools
+    - Aligners assign a mapping quality of 0 if they cannot uniquely place a read
+    - Regions of low mappability are usually out of bounds for short read sequencing
+    - <span class="blue">**Filter**: *minimum mapping quality of variant reads*</span>
+    - <span class="blue">**Filter**: *calls from low-complexity and low-mappability regions*</span>
+
+
+## Low mapping quality {.flexbox .vcenter}
+
+```{r echo=FALSE, out.width = 800, out.height = 500, fig.retina = NULL}
+knitr::include_graphics("low_mapping_quality_centromeric_region.png")
+```
+
+
+## Filtering strategies
+
+- Typically there are thousands to tens of thousands of somatic SNVs, largely depending on the type of cancer
+    - visual inspection of every somatic SNV call is not practical
+
+<div style="line-height: 50%;"><br></div>
+
+- Computers can potentially be trained to recognize characteristics that distinguish true variants from erroneous calls (machine learning techniques)
+
+<div style="line-height: 50%;"><br></div>
+
+- Most pipelines developed by ICGC project teams still rely on "hard filters"
+    - based on summary statistics, or metrics, computed from the sequence reads covering the variant position, e.g. average mapping or base quality scores
+
+<div style="line-height: 50%;"><br></div>
+
+- Ensemble approaches --- majority voting on candidate SNVs called by multiple callers
+
+<div style="line-height: 50%;"><br></div>
+
+- **Trade-off between sensitivity and accuracy**
+
+
+## Benchmarking
+
+- Efforts from The Cancer Genome Atlas (**TCGA**) and International Cancer Genome Consortium (**ICGC**) to set standards for the sensitivity and accuracy of mutation calling employ benchmark datasets for which *"truth"* is known
+
+<div style="line-height: 50%;"><br></div>
+
+- Real tumour genomes where verification of variants obtained using an independent technology or from higher-depth sequencing
+    - Established ground truth may exhibit sources of error similar to the algorithms being assessed
+
+<div style="line-height: 50%;"><br></div>
+
+- Synthetic tumour genomes
+    - Simulated *de novo* from the reference genome
+    - Admixture of polymorphic sites from two unrelated tumour samples
+
+<div style="line-height: 50%;"><br></div>
+
+[Ewing et al., Nat Methods 2015](http://www.ncbi.nlm.nih.gov/pubmed/25984700)
+
+<div style="line-height: 25%;"><br></div>
+
+[Alioto et al., Nat Commun. 2015](http://www.ncbi.nlm.nih.gov/pubmed/26647970)
+
+
+## Benchmark datasets
+
+- TCGA benchmarking
+    - HCC1143 breast cancer cell line and it's matched normal, HCC1143 BL, used in TCGA benchmark 4
+    - Varying mixes of of tumour and normal to simulate normal contamination
+    - Spike-in of reads from separate cell line at varying proportions to model heterogeneity (subclone expansion)
+
+<div style="line-height: 50%;"><br></div>
+
+- ICGC benchmarking
+    - Medulloblastoma tumour/normal pair sequenced in 6 different centres to combined 300-fold coverage
+    - Participating project teams submitted results from their pipelines on the data from one centre (40x)
+
+<div style="line-height: 50%;"><br></div>
+
+- [ICGC/TCGA DREAM Somatic Mutation Calling Challenge](https://www.synapse.org/#!Synapse:syn312572)
+
+
+## Assessing SNV calling
+
+$TP$ -- number of true positives, i.e. correct calls  
+$FP$ -- number of false positives, i.e. incorrect calls  
+$FN$ -- number of false negatives, i.e. number of missed calls
+
+Number of SNV calls $= TP + FP$
+
+<div style="line-height: 25%;"><br></div>
+
+$$\mathrm{Precision} = \frac{TP}{TP + FP}$$
+
+<div style="line-height: 25%;"><br></div>
+
+Number of real SNVs $= TP + FN$
+
+<div style="line-height: 25%;"><br></div>
+
+$$\mathrm{Recall} = \frac{TP}{TP + FN}$$
+
+<div style="line-height: 25%;"><br></div>
+
+Balanced accuracy = (Precision + Recall) / 2
+
+
+## ICGC Benchmark -- real medulloblastoma case
+
+```{r echo=FALSE}
+mb99 <- read.delim("icgc_benchmark_mb99.txt",
+                   stringsAsFactors = FALSE, check.names = FALSE)
+
+scatterPlot(
+  mb99 %>%
+    filter(grepl("MB", Group)) %>%
+    filter(Group != "MB.E") %>%
+    transmute(
+      x = Precision,
+      y = Recall,
+      series = ifelse(grepl("^MB.F", Group), "CRUK-CI",
+               ifelse(grepl("^MB", Group), "Submissions",
+               Group)),
+      tooltip = paste(
+        Group,
+        "<br>TP: ", TP, ", FP: ", FP, ", FN: ", (1255 - TP),
+        "<br>Precision: ", Precision,
+        "<br>Recall: ", Recall,
+        "<br>Balanced accuracy: ", Balanced_accuracy,
+        sep = ""
+      )
+    ),
+  series = c("Submissions", "CRUK-CI"),
+  colours = c("#7cb5ec", "#FF3030"),
+  visible = c(TRUE, TRUE),
+  sizes = c(5.0, 5.0),
+  xLabel = "Precision",
+  yLabel = "Recall",
+  xmin = 0.0, xmax = 1.0,
+  ymin = 0.0, ymax = 1.0,
+  yLine = 1019 / 1255, yLineColour = "#696969"
+)
+```
+
+
+## Tuning filters
+
+- Benchmark datasets can be used to both tune and assess filters
+
+<div style="line-height: 50%;"><br></div>
+
+- Ideally need to test filters on separate dataset to that used for training
+
+<div style="line-height: 100%;"><br></div>
+
+- Approach:
+
+    1. Plot distribution of true and false positive variants for variety of metrics
+    2. Choose threshold to best distinguish between TP and FP
+
+
+## Median base quality of variant supporting reads
+
+```{r echo=FALSE}
+
+metrics <- read.delim("MB99.snv.metrics.truth.txt",
+                   stringsAsFactors = FALSE, check.names = FALSE)
+
+metric <- "VariantBaseQualMedian"
+
+data <- list(
+  true = metrics %>%
+    filter(Status == "true") %>%
+    select(one_of(metric)) %>%
+    unlist(use.names = FALSE) %>%
+    na.omit,
+  false = metrics %>%
+    filter(Status == "false") %>%
+    select(one_of(metric)) %>%
+    unlist(use.names = FALSE) %>%
+    na.omit
+)
+
+densityPlot(
+  data,
+  xLabel = metric,
+  xmin = data %>% unlist(use.names = FALSE) %>% min,
+  xmax = data %>% unlist(use.names = FALSE) %>% max + 1,
+  fillOpacity = 0.4,
+  tooltipDigits = 1
+)
+```
+
+
+## Median mapping quality of variant reads
+
+```{r echo=FALSE}
+
+metric <- "VariantMapQualMedian"
+
+data <- list(
+  true = metrics %>%
+    filter(Status == "true") %>%
+    select(one_of(metric)) %>%
+    unlist(use.names = FALSE) %>%
+    na.omit,
+  false = metrics %>%
+    filter(Status == "false") %>%
+    select(one_of(metric)) %>%
+    unlist(use.names = FALSE) %>%
+    na.omit
+)
+
+densityPlot(
+  data,
+  xLabel = metric,
+  xmin = data %>% unlist(use.names = FALSE) %>% min,
+  xmax = data %>% unlist(use.names = FALSE) %>% max + 1.5,
+  fillOpacity = 0.4,
+  tooltipDigits = 1
+)
+```
+
+
+## Difference in mapping quality between variant and reference reads
+
+```{r echo=FALSE}
+
+metric <- "MapQualDiffMedian"
+
+data <- list(
+  true = metrics %>%
+    filter(Status == "true") %>%
+    select(one_of(metric)) %>%
+    unlist(use.names = FALSE) %>%
+    na.omit,
+  false = metrics %>%
+    filter(Status == "false") %>%
+    select(one_of(metric)) %>%
+    unlist(use.names = FALSE) %>%
+    na.omit
+)
+
+densityPlot(
+  data,
+  xLabel = metric,
+  xmin = -10,
+  xmax = 10,
+  fillOpacity = 0.4,
+  tooltipDigits = 1
+)
+```
+
+
+## Applying filters
+
+- [VariantFiltration](https://software.broadinstitute.org/gatk/documentation/tooldocs/org_broadinstitute_gatk_tools_walkers_filters_VariantFiltration.php) tool in the Genome Analysis Toolkit (GATK)
+
+```
+java -jar GenomeAnalysisTK.jar \
+  --analysis_type VariantFiltration \
+  --reference_sequence reference.fasta \
+  --variant input.vcf \
+  --out output.vcf \
+  --filterName VariantAlleleCount    --filterExpression "VariantAlleleCount < 3" \
+  --filterName VariantCountControl   --filterExpression "VariantAlleleCountControl > 1" \
+  --filterName VariantBaseQualMedian --filterExpression "VariantBaseQualMedian < 25.0" \
+  --filterName VariantMapQualMedian  --filterExpression "VariantMapQualMedian < 40.0" \
+  --filterName MapQualDiffMedian     --filterExpression "MapQualDiffMedian < -5.0 || MapQualDiffMedian > 5.0" \
+  --filterName LowMapQual            --filterExpression "LowMapQual > 0.05"
+```
+
+<div style="line-height: 50%;"><br></div>
+
+- Other variant filtering tools include vcffilter from [vcflib](https://github.com/vcflib/vcflib) and, within R, the [VariantAnnotation](https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html) Bioconductor package.
+
+
+## Tuning filters for the ICGC medulloblastoma benchmark
+
+```{r echo=FALSE}
+scatterPlot(
+  mb99 %>%
+    filter(Group != "MB.E") %>%
+    transmute(
+      x = Precision,
+      y = Recall,
+      series = ifelse(grepl("^MB.F", Group), "CRUK-CI",
+               ifelse(grepl("^MB", Group), "Submissions",
+               Group)),
+      tooltip = paste(
+        Group,
+        "<br>TP: ", TP, ", FP: ", FP, ", FN: ", (1255 - TP),
+        "<br>Precision: ", Precision,
+        "<br>Recall: ", Recall,
+        "<br>Balanced accuracy: ", Balanced_accuracy,
+        sep = ""
+      )
+    ),
+  series = c("Submissions", "CRUK-CI", "Strelka", "Strelka filter set 1", "Strelka filter set 2", "MuTect2", "MuTect2 filter set 1", "MuTect2 filter set 2"),
+  colours = c("#7CB5EC", "#FF3030", "#CD9B1D", "#EEB422", "#FFC125", "#66CD00", "#76EE00", "#7FFF00"),
+  visible = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+  sizes = c(5.0, 5.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0),
+  xLabel = "Precision",
+  yLabel = "Recall",
+  xmin = 0.0, xmax = 1.0,
+  ymin = 0.0, ymax = 1.0,
+  yLine = 1019 / 1255, yLineColour = "#696969"
+)
+```
+
+
+## Testing filters on DREAM challenge synthetic 4 dataset
+
+```{r echo=FALSE}
+syn4 <- read.delim("dream_synthetic4_leaderboard.txt",
+                   stringsAsFactors = FALSE, check.names = FALSE)
+
+syn4 <- syn4 %>%
+  mutate(TeamName = paste(Team, Name, sep="|")) %>%
+  mutate_each(funs(round(., digits = 3)), `Precision (All)`, `Sensitivity (All)`, `Balanced Accuracy (All)`)
+
+scatterPlot(
+  syn4 %>%
+    transmute(
+      x = `Precision (All)`,
+      y = `Sensitivity (All)`,
+      series = ifelse(TeamName == "CRUK-CI|MuTect2", "MuTect2",
+               ifelse(TeamName == "CRUK-CI|MuTect2 filter set 1", "MuTect2 filter set 1",
+               ifelse(Eligible, "Submissions", "Ineligible"))),
+      tooltip = paste(
+        Name, ifelse(Team == "CRUK-CI", "", paste(" (", Team, ")", sep = "")),
+        "<br>TP: ", `True Positives (All)`,
+        ", FP: ", `Number of Calls (All)` -`True Positives (All)` ,
+        ", FN: ", `False Negatives (All)`,
+        "<br>Precision: ", `Precision (All)`,
+        "<br>Recall: ", `Sensitivity (All)`,
+        "<br>Balanced accuracy: ", `Balanced Accuracy (All)`,
+        sep = ""
+      )
+    ),
+  series = c("MuTect2", "MuTect2 filter set 1", "Submissions"),
+  colours = c("#66CD00", "#76EE00", "#7CB5EC"),
+  visible = c(FALSE, FALSE, TRUE),
+  sizes = c(6.0, 6.0, 5.0),
+  xLabel = "Precision",
+  yLabel = "Recall",
+  xmin = 0.0, xmax = 1.0,
+  ymin = 0.0, ymax = 1.0
+)
+```
+
+
+## Panel of Normals filter (PoN)
+
+- Artefacts usually cancel out in the tumour normal comparison but depends on adequate sampling
+
+- Low depth in normal can cause germline variants to appear as somatic because of insufficient sampling of the DNA at that position
+
+- This equally applies to regions of the genome that are difficult to map to, i.e. there are misalignments
+
+- An approach to detecting likely artefacts is to look for the variant in a panel of unrelated normal samples
+- <span class="blue">**Filter**: *variant observed in at least N unmatched normals at minimum specified allele frequency*</span>
+
+
+## PoN blacklist filter on DREAM challenge synthetic 4 dataset
+
+```{r echo=FALSE}
+scatterPlot(
+  syn4 %>%
+    transmute(
+      x = `Precision (All)`,
+      y = `Sensitivity (All)`,
+      series = ifelse(TeamName == "CRUK-CI|MuTect2", "MuTect2",
+               ifelse(TeamName == "CRUK-CI|MuTect2 filter set 1", "MuTect2 filter set 1",
+               ifelse(TeamName == "CRUK-CI|MuTect2 PoN blacklist", "MuTect2 PoN blacklist",
+               ifelse(TeamName == "CRUK-CI|MuTect2 PoN + fs1", "MuTect2 PoN + fs1",
+               ifelse(Eligible, "Submissions", "Ineligible"))))),
+      tooltip = paste(
+        Name, ifelse(Team == "CRUK-CI", "", paste(" (", Team, ")", sep = "")),
+        "<br>TP: ", `True Positives (All)`,
+        ", FP: ", `Number of Calls (All)` -`True Positives (All)` ,
+        ", FN: ", `False Negatives (All)`,
+        "<br>Precision: ", `Precision (All)`,
+        "<br>Recall: ", `Sensitivity (All)`,
+        "<br>Balanced accuracy: ", `Balanced Accuracy (All)`,
+        sep = ""
+      )
+    ),
+  series = c("MuTect2", "MuTect2 filter set 1", "MuTect2 PoN blacklist", "MuTect2 PoN + fs1", "Submissions"),
+  colours = c("#66CD00", "#76EE00", "#7FFF00", "#458B00", "#7CB5EC"),
+  visible = c(TRUE, TRUE, FALSE, FALSE, TRUE),
+  sizes = c(6.0, 6.0, 6.0, 6.0, 5.0),
+  xLabel = "Precision",
+  yLabel = "Recall",
+  xmin = 0.0, xmax = 1.0,
+  ymin = 0.0, ymax = 1.0
+)
+```
+
+
+## CaVEMan filters
+
+HCC1143 dataset: 74588 of 92286 (80%) of raw SNV calls made by CaVEMan are filtered
+
+```{r echo=FALSE}
+caveman_filters <- read.delim("caveman_filters.txt",
+                              stringsAsFactors = FALSE, check.names = FALSE)
+
+datatable(
+  caveman_filters,
+  rownames = FALSE,
+  options = list(
+    dom = "t"
+  )
+)
+```
+
+
+## Summary
+
+- SNV calling in cancer genomes is difficult for many reasons
+
+- Using an SNV caller out-of-the-box may give a reasonable set of calls but is likely to result in call sets with higher sensitivity at the expense of precision
+
+- Simple filtering strategies can improve precision but there is a trade-off between accuracy and sensitivity
+
+- The cancer genome sequencing community has been active in establishing benchmark datasets that can be used to assess and improve somatic mutation calling pipelines
+
