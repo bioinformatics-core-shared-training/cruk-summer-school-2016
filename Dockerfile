@@ -70,8 +70,8 @@ RUN wget https://github.com/Illumina/manta/releases/download/v0.29.6/manta-0.29.
 RUN tar -xjf manta-0.29.6.release_src.tar.bz2
 RUN mkdir manta-0.29.6.release_src/build/
 WORKDIR manta-0.29.6.release_src/build
-#RUN ../configure --jobs=4 --prefix=/opt/manta
-#RUN make -j4 install
+RUN ../configure --jobs=4 --prefix=/opt/manta
+RUN make -j4 install
 #RUN git clone https://github.com/markdunning/summer-school2016.git /home/participant/Course_Materials/
 #RUN ls /home/participant/Course_Materials/
 #WORKDIR /home/participant/Course_Materials
@@ -96,6 +96,5 @@ WORKDIR /home/participant/Course_Materials
 RUN useradd participant -d /home/participant
 RUN chmod -R 777 /home/participant/Course_Materials 
 RUN chown participant /home/participant/Course_Materials 
-USER participant
-#RUN wget https://raw.githubusercontent.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/installBioCPkgs.R
-#RUN R -f installBioCPkgs.R
+RUN wget https://raw.githubusercontent.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/installBioCPkgs.R
+RUN R -f installBioCPkgs.R
