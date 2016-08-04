@@ -159,7 +159,7 @@ ii) assess which calls might be biologically-meaningful and warrant further inve
 
 <h1>
 <a id="software" class="anchor" href="#software" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Software</h1>
-
+</h1>
 <p>Practical exercises can be completed in either RStudio, or Docker</p>
 
 <h2>RStudio instructions</h2>
@@ -170,7 +170,19 @@ ii) assess which calls might be biologically-meaningful and warrant further inve
   source("https://raw.githubusercontent.com/bioinformatics-core-shared-training/cruk-summer-school-2016/master/installBioCPkgs.R")
 </code>
 
-</h1>
+<h2>CGPbox instructions</h2>
+The Wellcome Trust Sanger Institute have made their cancer genome analysis pipeline available as a Docker container; <a target="_blank" href="https://github.com/cancerit/cgpbox">cgpbox</a>
+<li>Install Docker for your operating system. <a target="_blank" href="https://docs.docker.com/docker-for-mac/">Docker for Mac</a> requires OS X 10.10.3 Yosemite or newer. <a target="_blank" href="https://docs.docker.com/docker-for-windows/">Docker for Windows</a> requires Windows 10.</li>
+<li>If you do not have Mac OSX 10.10.3 or Windows 10, you will have to install <a target="_blank" href="https://docs.docker.com/toolbox/overview/">Docker Toolbox</a></li>
+<li>Follow the installation instructions</li>
+<li>Once docker is sucessfully running, you can get the following at the command-line:-</li>
+<code>docker pull quay.io/wtsicgp/cgp_in_a_box</code>
+
+<h2>CRUK Docker instructions</h2>
+<li>Install docker as above</li>
+<li>Download the latest version of the docker container with:-</li>
+<code>docker pull markdunning/summer-school2016</code>
+
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/bioinformatics-core-shared-training/cruk-summer-school-2016">Analysis of Cancer Genomes</a> is maintained by <a href="https://github.com/bioinformatics-core-shared-training">bioinformatics-core-shared-training</a>.</span>
